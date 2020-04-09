@@ -1,0 +1,4 @@
+#Ignore several directories
+__pycache__/
+figures/
+datafiles/
