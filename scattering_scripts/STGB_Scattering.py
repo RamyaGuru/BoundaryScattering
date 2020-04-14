@@ -22,7 +22,6 @@ import Callaway as Cal
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib as mpl
 from math import asin, acos, pi, sin, cos, tan, atan
 
 np.seterr(divide='raise', invalid="raise")
