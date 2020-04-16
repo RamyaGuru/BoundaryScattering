@@ -18,7 +18,6 @@ Steps:
 
 import ArrayScattering as AS
 from AngularVs import ElasticProps, v_long, v_shear, v_sound, v_xy
-import Callaway as Cal
 import math
 import numpy as np
 import matplotlib.pyplot as plt
