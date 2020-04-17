@@ -21,7 +21,8 @@ kB = 1.38064852e-23
 '''
 PROPERTIES: options for calculated properties including tranmissivity, thermal
 boundary conductance, and thermal conductivity
-'''       
+''' 
+      
 
 def tau_spectral(Gamma, k, vg_func, n):
     '''

@@ -15,11 +15,10 @@ This is a 60 degree twist boundary normal to the "x" direction
 import sys
 sys.path.append('/Users/ramyagurunathan/Documents/PhDProjects/The-Grid-Interface/christoffel')
 
-import ArrayScattering as AS
+from ArrayScattering import ArrayScattering
 from christoffel import Christoffel 
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib as mpl
 import math
 from math import pi, cos, sin, acos, asin
 

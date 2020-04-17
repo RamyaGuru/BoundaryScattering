@@ -15,29 +15,33 @@ hbar = 6.6260696 * 10**-34 / (2 * math.pi)
 kB = 1.38064852e-23
 
 
+
 class ArrayScattering:
     '''   
     Inputs:
-       theta: GB angle in radians
+       theta: GB angle in degrees
        vs: avg. sound velocity
        V: avg. atomic volume
        N: number of atoms per unit cell
        d_GS: avg. grain size
-       ax: axis of dislocation spacing
+       ax: axis of dislocation spacing, {x:1, y:2, z:3}
        geom = ['twist', 'tilt', 'twin']
        Initialize an ArrayScattering object with the crystal and microstructure inputs
     '''
-    def __init__(self,  vs, V: list, N, d_GS, theta = None, ax = None, geom = 'tilt', grun = 1):
+    def __init__(self, avg_vs, atmV: list, N, d_GS, nu, theta = None, ax = None, geom = 'tilt', gruneisen = 1):
        if geom not in ['twist', 'tilt', 'heterointerface', 'twin']:
            raise ValueError('GB geometry value not valid')
        self.theta = theta
-       self.vs = vs
-       self.V = V[0]
+       self.vs = avg_vs
+       self.V = atmV[0]
        self.N = N
        self.d_GS = d_GS
-       self.n_1D = 1/d_GS
-       self.grun = grun
-       self.b = (V * N) ** (1 / 3) 
+       self.n_1D = 3/d_GS
+       self.gruneisen = gruneisen
+       self.b = (self.V * self.N) ** (1 / 3) 
+       self.k_max = (6 * math.pi**2 / (self.V * self.N))**(1 / 3)
+       self.nu = nu
+       self.omegaD = self.vs * self.k_max
        if geom == 'twist' or geom == 'tilt':
            self.theta = theta
            self.D = self.b / ( 2 * math.tan(theta / 2))
@@ -45,7 +49,7 @@ class ArrayScattering:
        elif geom == 'twin':
            self.theta = theta
        elif geom == 'heterointerface':
-           self.V2 = V[1]
+           self.V2 = atmV[1]
            self.D = (self.V**(1/3) / (self.V2**(1/3) - self.V**(1/3))) * self.b
            self.ax = ax
                   
@@ -86,8 +90,7 @@ class ArrayScattering:
     
     '''
     Scattering Functions
-    '''    
-    
+    ''' 
     def qm(self, m):
         '''
         Input: index m and dislocation spacing D
@@ -224,7 +227,7 @@ class ArrayScattering:
         plt.show(block=False)
     
     
-    def GammaArray(self, k_vector, kprime_vectors, V1_twiddle_sq, vg):
+    def GammaArray(self, k_vector, kprime_vectors, V1_twiddle_sq):
         '''
         Performs sum over all possible k' states.
         Requires the magnitude squared of the Fourier transform
@@ -247,5 +250,5 @@ class ArrayScattering:
             running_sum = running_sum + \
             V1_twiddle_sq(k_vector, kprime_vector) * (-qx * kx - qD * kD) * abs(kxprime) ** -1  
             i+=1
-        return (self.n_1D / (hbar ** 2 * self.D ** 2 * vg * k)) * running_sum 
+        return (self.n_1D / (hbar ** 2 * self.D ** 2 * self.vg_kmag(k) * k)) * running_sum 
 

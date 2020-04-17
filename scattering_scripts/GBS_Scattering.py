@@ -1,32 +1,30 @@
-import ArrayScattering as AS
+from ArrayScattering import ArrayScattering as AS
+import ScatteringPlots as splt
 import Callaway as Cal
 import math
 import numpy as np
 import matplotlib.pyplot as plt
+import helper
 
 
-# Crystal properties
-vs = 6084.       # Speed of sound [m/s]
-V = 2E-29       # Volume per atom [m^3]
-N = 2           # Number of atoms per primitive unit cell
-def gamma(k_vector):
-    return 1           # Gruneissen parameter
-nu = 0.27       # Poisson's ratio
-k_max = (6 * math.pi**2 / (V * N))**(1 / 3)  # maximum k-vector (spherical BZ, only acoustic brances)
-omega_D = vs * k_max  # Debye frequency [Hz]
-def omega_k(k_vector):
-    k = AS.k_mag(k_vector)
-    return vs * k
-def vg_k(k_vector):
-    return vs
 
+'''
+Input dict
+'''
+input_dict = {'avg_vs': 6084,
+             'atmV': [2E-29],
+             'N': 2,
+             'nu' : 0.29,
+             'gruneisen' : 1,
+        }
+'''
+Initialize input dictionary with Materials Project
+'''
+#input_dict = helper.input_dict_from_MP('mp-149')
+#tilt = AS.ArrayScattering(**input_dict, geom = 'tilt', theta = 10, ax = 2, d_GS = 350E-9)
 
-# Microstructural parameters
-b = (V * N) ** (1 / 3)  # Burger's vector [m]
-d_GS = 350E-9           # Average grain size [m]
-n_1D = 3 / d_GS         # Number density of GBs [m^-1]
-D = 1E-9                # Linear defects spacing [m]
-
+#Instantiate as object of ArrayScattering
+tilt = AS(**input_dict, geom = 'tilt', theta = 10, ax = 2, d_GS = 350E-9)
 
 # Scattering matrix elements
 '''
@@ -35,8 +33,8 @@ q_vector[0] and q_vector[1]
 def V1_twiddle_sq_Delta(k_vector, kprime_vector):
     k = AS.k_mag(k_vector)
     q_vector = np.asarray(kprime_vector) - np.asarray(k_vector)
-    return abs(AS.hbar * omega_k(k_vector) * gamma(k_vector) * \
-               ((b * (1 - 2 * nu)) / (1 - nu)) * (q_vector[1]\
+    return abs(helper.hbar * tilt.omega_kmag(k) * tilt.gruneisen * \
+               ((tilt.b * (1 - 2 * tilt.nu)) / (1 - tilt.nu)) * (q_vector[1]\
                / (q_vector[0]**2 + q_vector[1]**2)))**2
 # missing a negative sign from the factor of "i"?
     
@@ -44,52 +42,66 @@ def V1_twiddle_sq_Delta(k_vector, kprime_vector):
 def V1_twiddle_sq_S(k_vector, kprime_vector):
     k = AS.k_mag(k_vector)
     q_vector = np.asarray(kprime_vector) - np.asarray(k_vector)
-    return abs(AS.hbar * omega_k(k_vector) * gamma(k_vector) * \
-               (b / (1 - nu)) * ((q_vector[0] * q_vector[1]**2)\
+    return abs(helper.hbar * tilt.omega_kmag(k) * tilt.gruneisen * \
+               (tilt.b / (1 - tilt.nu)) * ((q_vector[0] * q_vector[1]**2)\
                / (q_vector[0]**2 + q_vector[1]**2)**2)) ** 2
 
 
 def V1_twiddle_sq_R(k_vector, kprime_vector):
     k = AS.k_mag(k_vector)
     q_vector = np.asarray(kprime_vector) - np.asarray(k_vector)
-    return abs(AS.hbar * omega_k(k_vector) * gamma(k_vector) * \
-               b * ((2 * q_vector[0]) / (q_vector[0]**2 + q_vector[1]**2)))**2
+    return abs(helper.hbar * tilt.omega_kmag(k) * tilt.gruneisen * \
+               tilt.b * ((2 * q_vector[0]) / (q_vector[0]**2 + q_vector[1]**2)))**2
 #for the twist boundary case, the gruneisen parameter is unsed in the rotation term? Why?
 
-def Gamma_GBS(k_vector, kprime_vectors, vg, n_1D, D):
-   return AS.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_Delta, vg, n_1D, D, 1) \
-          + AS.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_S, vg, n_1D, D, 1)\
-          + AS.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_R, vg, n_1D, D, 1)
+def Gamma_GBS(k_vector, kprime_vectors):
+   return tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_Delta) \
+          + tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_S)\
+          + tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_R)
 
 
-def Gamma(k_vector, vg):
-    return Gamma_GBS(k_vector, AS.kprimes_y(k_vector, D), vg, n_1D, D) * 1E-9 #what's this function for?
+def Gamma(k_vector):
+    return Gamma_GBS(k_vector, tilt.kprimes_y(k_vector)) * 1E-9 #what's this function for?
 
-k_vector = [0.2 * k_max, 0, 0]
+k_vector = [0.2 * tilt.k_max, 0, 0]
 
+
+def calculate_Gammas(n_k):
+    dk = tilt.k_max / n_k
+    k_mags = np.arange(dk, tilt.k_max, dk)
+    k_norm = k_mags / tilt.k_max
+    k_vectors = []
+    for k in k_mags:
+        k_vectors.append([k, 0, 0])
+    Gamma_GBS_list = []
+    for k_vector in k_vectors:
+        Gamma_GBS_list.append(Gamma(k_vector))
+    return [list(a) for a in zip(Gamma_GBS_list, k_norm)]
+
+Gamma_GBS_list = calculate_Gammas(20)
 
 
 # Plot Gamma_GBS(k_vector) for normal incidence
-n_k = 20
-dk = k_max / n_k
-k_mags = np.arange(dk, k_max, dk)
-k_norm = k_mags / k_max
-k_vectors = []
-for k in k_mags:
-    k_vectors.append([k, 0, 0])
+#n_k = 20
+#dk = k_max / n_k
+#k_mags = np.arange(dk, k_max, dk)
+#k_norm = k_mags / k_max
+#k_vectors = []
+#for k in k_mags:
+#    k_vectors.append([k, 0, 0])
+#
+#Gamma_GBS_list = []
+#for k_vector in k_vectors:
+#    Gamma_GBS_list.append(Gamma(k_vector, vg_k(k_vector)))
 
-Gamma_GBS_list = []
-for k_vector in k_vectors:
-    Gamma_GBS_list.append(Gamma(k_vector, vg_k(k_vector)))
-
-plt.figure()
-plt.xlim((0, 1))
-plt.ylim((0, 40))
-plt.xlabel(r'$k/k_{\mathrm{max}}$', fontsize=16)
-plt.ylabel(r'$\Gamma \; \mathrm{(ns^{-1})}$', fontsize=16)
-plt.plot(k_norm, Gamma_GBS_list)
-plt.savefig('tiltdiff_D1e-9_2.pdf', dpi=400, bbox_inches = 'tight')
-plt.show(block=False)
+#plt.figure()
+#plt.xlim((0, 1))
+#plt.ylim((0, 40))
+#plt.xlabel(r'$k/k_{\mathrm{max}}$', fontsize=16)
+#plt.ylabel(r'$\Gamma \; \mathrm{(ns^{-1})}$', fontsize=16)
+#plt.plot(k_norm, Gamma_GBS_list)
+#plt.savefig('tiltdiff_D1e-9_2.pdf', dpi=400, bbox_inches = 'tight')
+#plt.show(block=False)
 
 # Convergence of tau_spectral, n_angle=100 is sufficient.
 # n_angle_list = np.arange(4, 100, 2)
@@ -103,32 +115,34 @@ plt.show(block=False)
 # plt.plot(n_angle_list, tau_nlist)
 # plt.show(block=False)
 
-# Calculation of spectral tau and kappa
-omega_list = []
-vg_list = []
-tau_list = []
-trans_list = []
-tbc_list = []
-kappa_list = []
 
-#%% Spectral plots
-#NOTE: already assume that all the phonons are incident to the interface
-T = 300
-for k in k_mags:
-    omega_list.append(omega_k([k,0,0])) # omega and vg are supposed to be only a function of k, not k_vector. This is tacky and needs to be fixed!
-    vg_list.append(vg_k([k,0,0]))
-    tau_list.append(AS.tau_spectral(Gamma, k, vg_k, 50))
-    trans_list.append(AS.transmissivity(k, vg_k, n_1D, Gamma, 50))
-    tbc_list.append(AS.tbc_spectral(k, vg_k, omega_k, T, Gamma, n_1D, 50))
-    kappa_list.append(AS.kL_spectral(Gamma, k, vg_k, omega_k, T, 50))
+
+# Calculation of spectral tau and kappa
+#omega_list = []
+#vg_list = []
+#tau_list = []
+#trans_list = []
+#tbc_list = []
+#kappa_list = []
 #
-#
-plt.figure()
-plt.xlabel(r'$k \; \mathrm{(m^{-1})}$', fontsize=16)
-plt.ylabel(r'$\tau \; \mathrm{(ns)}$', fontsize=16)
-plt.plot(k_mags, tau_list)
-plt.savefig('tiltBoundary_D1e-9_2.pdf', dpi=400, bbox_inches = 'tight')
-plt.show(block=False)
+##%% Spectral plots
+##NOTE: already assume that all the phonons are incident to the interface
+#T = 300
+#for k in k_mags:
+#    omega_list.append(omega_k([k,0,0])) # omega and vg are supposed to be only a function of k, not k_vector. This is tacky and needs to be fixed!
+#    vg_list.append(vg_k([k,0,0]))
+#    tau_list.append(AS.tau_spectral(Gamma, k, vg_k, 50))
+#    trans_list.append(AS.transmissivity(k, vg_k, n_1D, Gamma, 50))
+#    tbc_list.append(AS.tbc_spectral(k, vg_k, omega_k, T, Gamma, n_1D, 50))
+#    kappa_list.append(AS.kL_spectral(Gamma, k, vg_k, omega_k, T, 50))
+##
+##
+#plt.figure()
+#plt.xlabel(r'$k \; \mathrm{(m^{-1})}$', fontsize=16)
+#plt.ylabel(r'$\tau \; \mathrm{(ns)}$', fontsize=16)
+#plt.plot(k_mags, tau_list)
+#plt.savefig('tiltBoundary_D1e-9_2.pdf', dpi=400, bbox_inches = 'tight')
+#plt.show(block=False)
 #
 #plt.figure()
 #plt.xlabel(r'$k \; \mathrm{(m^{-1}}$')
