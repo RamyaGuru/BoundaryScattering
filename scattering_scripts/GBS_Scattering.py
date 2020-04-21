@@ -78,45 +78,17 @@ def calculate_Gammas(n_k):
         Gamma_GBS_list.append(Gamma(k_vector))
     return [k_norm, Gamma_GBS_list]    
 
-#Can this go in the ThermalTransport script?
 
-def calculate_spectral_phonon_props(prop_list = ['tau', 'transmissivity', 'TBC', 'kappa'], n_angle = 100, n_k = 100, T = 300):
-    '''
-    Calculate frequency-dependent properties
-    prop_list : spectral properties which should be calculated
-    '''
-    spectral = {'vg' : [], 'omega' : []}
-    function = {'tau' : TT.tau_spectral, 'transmissivity' : TT.transmissivity_spectral,
-                'TBC' : TT.tbc_spectral, 'kappa' : TT.kL_spectral}
-    if any(prop_list) not in ['tau', 'transmissivity', 'TBC', 'kappa']:
-        ValueError('Property not in allowed values list')
-    if 'tau' in prop_list:
-        spectral['tau'] = []
-    if 'transmissivity' in prop_list:
-        spectral['transmissivity'] = []
-    if 'TBC' in prop_list:
-        spectral['TBC'] = []
-    if 'kappa' in prop_list:
-        spectral['kappa'] = []
-    dk = tilt.k_max / n_k
-    k_mags = np.arange(dk, tilt.k_max, dk)
-    params = {'Gamma' : Gamma, 'gb' : tilt, 'k' : dk, 'n_angle' : n_angle, 'T' : T}
-    for k in k_mags: 
-        spectral['vg'].append(tilt.vg_kmag(k))
-        spectral['omega'].append(tilt.omega_kmag(k))
-        params['k'] = k
-        for prop in prop_list:
-            spectral[prop].append(function[prop](**params))
-    return spectral
+
 
 if __name__ == "__main__":
     Gamma_list = calculate_Gammas(200)
     SPlt.diffraction_plot(tilt, Gamma_list[0], Gamma_list[1])
     SPlt.convergence_tau_plot(tilt, Gamma, 100, T = 300)
-#    spectral = calculate_spectral_phonon_props(prop_list = ['tau', 'transmissivity', 'TBC', 'kappa'],\
-#                                         n_angle = 100, n_k = 100, T = 300)
-    with open('spectral.json') as json_file:
-        spectral = json.load(json_file)
+    spectral = TT.calculate_spectral_props(tilt, Gamma, prop_list = ['tau', 'transmissivity', 'TBC', 'kappa'],\
+                                         n_angle = 100, n_k = 100, T = 300)
+#    with open('spectral.json') as json_file:
+#        spectral = json.load(json_file)
     SPlt.spectral_plots(tilt, spectral)
 
 

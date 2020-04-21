@@ -116,3 +116,33 @@ def tbc_T(kmax, dk, vg_k, omega_k, T, n_1D, Gamma, n):
         tbc_int = tbc_int + a*vg*Cv(k,T, omega_k)*dk
     return (1/4)*tbc_int
 
+def calculate_spectral_props(gb : AS, Gamma, prop_list = ['tau', 'transmissivity', 'TBC', 'kappa'],\
+                             n_angle = 100, n_k = 100, T = 300):
+    '''
+    Calculate frequency-dependent properties
+    prop_list : spectral properties which should be calculated
+    '''
+    spectral = {'vg' : [], 'omega' : []}
+    function = {'tau' : tau_spectral, 'transmissivity' : transmissivity_spectral,
+                'TBC' : tbc_spectral, 'kappa' : kL_spectral}
+    if any(prop_list) not in ['tau', 'transmissivity', 'TBC', 'kappa']:
+        ValueError('Property not in allowed values list')
+    if 'tau' in prop_list:
+        spectral['tau'] = []
+    if 'transmissivity' in prop_list:
+        spectral['transmissivity'] = []
+    if 'TBC' in prop_list:
+        spectral['TBC'] = []
+    if 'kappa' in prop_list:
+        spectral['kappa'] = []
+    dk = gb.k_max / n_k
+    k_mags = np.arange(dk, gb.k_max, dk)
+    params = {'Gamma' : Gamma, 'gb' : gb, 'k' : dk, 'n_angle' : n_angle, 'T' : T}
+    for k in k_mags: 
+        spectral['vg'].append(gb.vg_kmag(k))
+        spectral['omega'].append(gb.omega_kmag(k))
+        params['k'] = k
+        for prop in prop_list:
+            spectral[prop].append(function[prop](**params))
+    return spectral
+
