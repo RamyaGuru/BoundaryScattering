@@ -44,7 +44,7 @@ class ArrayScattering:
        self.omegaD = self.vs * self.k_max
        if geom == 'twist' or geom == 'tilt':
            self.theta = theta
-           self.D = self.b / ( 2 * math.tan(theta / 2))
+           self.D = self.b / ( 2 * math.tan(theta * (math.pi/180) / 2))
            self.ax = ax 
        elif geom == 'twin':
            self.theta = theta
@@ -162,7 +162,7 @@ class ArrayScattering:
         kprime_list.append([-kx, ky, kz])
         for m in m_values:
             for sign in [-1, 1]:
-                kprime_list.append([self.kxprime_msigma(kx, ky, m, sign, self.D), ky - self.qm(m, self.D), kz])
+                kprime_list.append([self.kxprime_msigma(kx, ky, m, sign), ky - self.qm(m), kz])
     
         return kprime_list
     

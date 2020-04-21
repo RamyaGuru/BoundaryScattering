@@ -1,10 +1,10 @@
 from ArrayScattering import ArrayScattering as AS
-import ScatteringPlots as splt
-import Callaway as Cal
+import ScatteringPlots as SPlt
+import ThermalTransport as TT
 import math
 import numpy as np
-import matplotlib.pyplot as plt
 import helper
+import json
 
 
 
@@ -59,7 +59,7 @@ def Gamma_GBS(k_vector, kprime_vectors):
           + tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_S)\
           + tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_R)
 
-
+#Move to thermalTransport?
 def Gamma(k_vector):
     return Gamma_GBS(k_vector, tilt.kprimes_y(k_vector)) * 1E-9 #what's this function for?
 
@@ -76,88 +76,50 @@ def calculate_Gammas(n_k):
     Gamma_GBS_list = []
     for k_vector in k_vectors:
         Gamma_GBS_list.append(Gamma(k_vector))
-    return [list(a) for a in zip(Gamma_GBS_list, k_norm)]
+    return [k_norm, Gamma_GBS_list]    
 
-Gamma_GBS_list = calculate_Gammas(20)
+#Can this go in the ThermalTransport script?
+
+def calculate_spectral_phonon_props(prop_list = ['tau', 'transmissivity', 'TBC', 'kappa'], n_angle = 100, n_k = 100, T = 300):
+    '''
+    Calculate frequency-dependent properties
+    prop_list : spectral properties which should be calculated
+    '''
+    spectral = {'vg' : [], 'omega' : []}
+    function = {'tau' : TT.tau_spectral, 'transmissivity' : TT.transmissivity_spectral,
+                'TBC' : TT.tbc_spectral, 'kappa' : TT.kL_spectral}
+    if any(prop_list) not in ['tau', 'transmissivity', 'TBC', 'kappa']:
+        ValueError('Property not in allowed values list')
+    if 'tau' in prop_list:
+        spectral['tau'] = []
+    if 'transmissivity' in prop_list:
+        spectral['transmissivity'] = []
+    if 'TBC' in prop_list:
+        spectral['TBC'] = []
+    if 'kappa' in prop_list:
+        spectral['kappa'] = []
+    dk = tilt.k_max / n_k
+    k_mags = np.arange(dk, tilt.k_max, dk)
+    params = {'Gamma' : Gamma, 'gb' : tilt, 'k' : dk, 'n_angle' : n_angle, 'T' : T}
+    for k in k_mags: 
+        spectral['vg'].append(tilt.vg_kmag(k))
+        spectral['omega'].append(tilt.omega_kmag(k))
+        params['k'] = k
+        for prop in prop_list:
+            spectral[prop].append(function[prop](**params))
+    return spectral
+
+if __name__ == "__main__":
+    Gamma_list = calculate_Gammas(200)
+    SPlt.diffraction_plot(tilt, Gamma_list[0], Gamma_list[1])
+    SPlt.convergence_tau_plot(tilt, Gamma, 100, T = 300)
+#    spectral = calculate_spectral_phonon_props(prop_list = ['tau', 'transmissivity', 'TBC', 'kappa'],\
+#                                         n_angle = 100, n_k = 100, T = 300)
+    with open('spectral.json') as json_file:
+        spectral = json.load(json_file)
+    SPlt.spectral_plots(tilt, spectral)
 
 
-# Plot Gamma_GBS(k_vector) for normal incidence
-#n_k = 20
-#dk = k_max / n_k
-#k_mags = np.arange(dk, k_max, dk)
-#k_norm = k_mags / k_max
-#k_vectors = []
-#for k in k_mags:
-#    k_vectors.append([k, 0, 0])
-#
-#Gamma_GBS_list = []
-#for k_vector in k_vectors:
-#    Gamma_GBS_list.append(Gamma(k_vector, vg_k(k_vector)))
-
-#plt.figure()
-#plt.xlim((0, 1))
-#plt.ylim((0, 40))
-#plt.xlabel(r'$k/k_{\mathrm{max}}$', fontsize=16)
-#plt.ylabel(r'$\Gamma \; \mathrm{(ns^{-1})}$', fontsize=16)
-#plt.plot(k_norm, Gamma_GBS_list)
-#plt.savefig('tiltdiff_D1e-9_2.pdf', dpi=400, bbox_inches = 'tight')
-#plt.show(block=False)
-
-# Convergence of tau_spectral, n_angle=100 is sufficient.
-# n_angle_list = np.arange(4, 100, 2)
-# tau_nlist = []
-# for n_angle in n_angle_list:
-#     tau_nlist.append(AS.tau_spectral(Gamma, k_max / 5., vg_k, n_angle))
-
-# plt.figure()
-# plt.xlabel('n', fontsize=16)
-# plt.ylabel(r'$\tau(k)^{-1} \; \mathrm{(ns^{-1})}$', fontsize=16)
-# plt.plot(n_angle_list, tau_nlist)
-# plt.show(block=False)
-
-
-
-# Calculation of spectral tau and kappa
-#omega_list = []
-#vg_list = []
-#tau_list = []
-#trans_list = []
-#tbc_list = []
-#kappa_list = []
-#
-##%% Spectral plots
-##NOTE: already assume that all the phonons are incident to the interface
-#T = 300
-#for k in k_mags:
-#    omega_list.append(omega_k([k,0,0])) # omega and vg are supposed to be only a function of k, not k_vector. This is tacky and needs to be fixed!
-#    vg_list.append(vg_k([k,0,0]))
-#    tau_list.append(AS.tau_spectral(Gamma, k, vg_k, 50))
-#    trans_list.append(AS.transmissivity(k, vg_k, n_1D, Gamma, 50))
-#    tbc_list.append(AS.tbc_spectral(k, vg_k, omega_k, T, Gamma, n_1D, 50))
-#    kappa_list.append(AS.kL_spectral(Gamma, k, vg_k, omega_k, T, 50))
-##
-##
-#plt.figure()
-#plt.xlabel(r'$k \; \mathrm{(m^{-1})}$', fontsize=16)
-#plt.ylabel(r'$\tau \; \mathrm{(ns)}$', fontsize=16)
-#plt.plot(k_mags, tau_list)
-#plt.savefig('tiltBoundary_D1e-9_2.pdf', dpi=400, bbox_inches = 'tight')
-#plt.show(block=False)
-#
-#plt.figure()
-#plt.xlabel(r'$k \; \mathrm{(m^{-1}}$')
-#plt.ylabel(r'$t$')
-#plt.plot(k_mags, trans_list)
-#plt.savefig('tiltBoundary_trans.pdf', dpi=400, bbox_inches = 'tight')
-#plt.show()
-#
-#
-#plt.figure()
-#plt.xlabel(r'$k \; \mathrm{(m^{-1}}$')
-#plt.ylabel(r'$TBC$')
-#plt.plot(k_mags, tbc_list)
-#plt.savefig('tiltBoundary_tbc.pdf', dpi=400, bbox_inches = 'tight')
-#plt.show()
 
 #%%Temperature plots
 
