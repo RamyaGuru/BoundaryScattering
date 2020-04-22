@@ -82,22 +82,22 @@ def kL_spectral(Gamma, gb : AS, k, n_angle, T):
     return kL
     
 
-def kL_T(Gamma, kmax, dk, vg_k, omega_k, T, n):
+def kL_T(Gamma, gb : AS, n_k, n_angle, T):
     '''
     Calculate the thermal conductivity versus temperature
     '''
+    dk = gb.k_max/n_k
     kLint = 0
-    for k in np.arange(dk, kmax, dk):
-        vg = vg_k(k)
-        tau = tau_spectral(Gamma, k, vg_k, n) * 1E-9
-        kLint = kLint + Cv(k,T, omega_k)*vg**2*tau*dk
+    for k in np.arange(dk, gb.k_max, dk):
+        vg = gb.vg_kmag(k)
+        tau = tau_spectral(Gamma, gb, k, n_angle, T) * 1E-9
+        kLint = kLint + Cv(k,T, gb.omega_kmag(k))*vg**2*tau*dk
     return (1/3)*kLint
 
 
 def tbc_spectral(Gamma, gb : AS, k, n_angle, T):
     '''
     Calculate the spectral thermal boundary conductance
-
     '''
     vg = gb.vg_kmag(k)
     a = transmissivity_spectral(Gamma, gb, k, n_angle, T)
@@ -105,22 +105,27 @@ def tbc_spectral(Gamma, gb : AS, k, n_angle, T):
     return (1/4)*tbc
 
 
-def tbc_T(kmax, dk, vg_k, omega_k, T, n_1D, Gamma, n):
+def tbc_T(Gamma, gb : AS, n_k, n_angle, T):
     '''
     Calculate the thermal boundary conductance versus T
     '''
+    dk = gb.k_max/n_k
     tbc_int = 0
-    for k in np.arange(dk, kmax, dk):
-        vg = vg_k(k)
-        a = transmissivity_spectral(k, vg_k, n_1D, Gamma, n)
-        tbc_int = tbc_int + a*vg*Cv(k,T, omega_k)*dk
+    for k in np.arange(dk, gb.k_max, dk):
+        vg = gb.vg_kmag(k)
+        a = transmissivity_spectral(Gamma, gb, k, n_angle, T)
+        tbc_int = tbc_int + a*vg*Cv(k,T, gb.omega_kmag(k))*dk
     return (1/4)*tbc_int
 
 def calculate_spectral_props(gb : AS, Gamma, prop_list = ['tau', 'transmissivity', 'TBC', 'kappa'],\
                              n_angle = 100, n_k = 100, T = 300):
     '''
-    Calculate frequency-dependent properties
+    Calculate spectral properties
     prop_list : spectral properties which should be calculated
+    
+    Output:
+        spectral: dictionary, key correspond to the property (vg and omega list are always included)
+        value is the list of property values at the freqeuncies in the omega list
     '''
     spectral = {'vg' : [], 'omega' : []}
     function = {'tau' : tau_spectral, 'transmissivity' : transmissivity_spectral,
@@ -146,3 +151,25 @@ def calculate_spectral_props(gb : AS, Gamma, prop_list = ['tau', 'transmissivity
             spectral[prop].append(function[prop](**params))
     return spectral
 
+def calculate_temperature_dependence(gb : AS, Gamma, temp_list, prop_list = ['TBC', 'kappa'],\
+                                     n_angle = 100, n_k = 50):
+    '''
+    Calculate properties at a range of temperatures
+    
+    Output:
+        temp_dependence: dictionary, key corresponds to property (temperature always included as independent variable)
+        value is the list of property values at different temperatures
+    '''
+    temp_dependence = {'temp' : temp_list}
+    function = {'TBC': tbc_T, 'kappa': kL_T}
+    if 'TBC' in prop_list:
+        temp_dependence['TBC'] = []
+    if 'kappa' in prop_list:
+        temp_dependence['kappa'] = [] 
+    params = {'Gamma' : Gamma, 'gb' : gb, 'n_k' : n_k, 'n_angle' : n_angle, 'T' :temp_list[0]}    
+    for T in temp_list:
+        params['T'] = T
+        for prop in prop_list:
+            temp_dependence[prop].append(function[prop](**params))
+    return temp_dependence
+    

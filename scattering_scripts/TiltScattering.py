@@ -90,7 +90,7 @@ if __name__ == "__main__":
 #    with open('spectral.json') as json_file:
 #        spectral = json.load(json_file)
     SPlt.spectral_plots(tilt, spectral)
-
+    temp_dependence = TT.calculate_temperature_dependence(tilt, Gamma, temp_list = [100, 800])
 
 
 #%%Temperature plots
@@ -125,7 +125,11 @@ if __name__ == "__main__":
 ##plt.xlabel('T (K)')
 ##plt.ylabel(r'$L_K$ $m$')
 ##plt.savefig('tiltBoundary_kapitza_T.pdf', bbox_inches = 'tight')
-###Log plots together with Qing Hao's Data
+    
+#%%
+'''
+Log plots together with Qing Hao's Data
+'''
 #
 #qh_data = np.loadtxt('Si_tbr.csv', delimiter = ',')
 #qh_data[:,1] = qh_data[:,1]*1e-9

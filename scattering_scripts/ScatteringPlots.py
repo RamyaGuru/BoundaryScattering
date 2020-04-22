@@ -80,4 +80,3 @@ def spectral_plots(gb : AS, spectral : dict, prop_list = ['tau', 'transmissivity
                         dpi=400, bbox_inches = 'tight')
         
     
-  
