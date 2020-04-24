@@ -21,7 +21,6 @@ input_dict = {'avg_vs': 6084,
 Initialize input dictionary with Materials Project
 '''
 #input_dict = helper.input_dict_from_MP('mp-149')
-#tilt = AS.ArrayScattering(**input_dict, geom = 'tilt', theta = 10, ax = 2, d_GS = 350E-9)
 
 #Instantiate as object of ArrayScattering
 tilt = AS(**input_dict, geom = 'tilt', theta = 10, ax = 2, d_GS = 350E-9)
@@ -55,9 +54,9 @@ def V1_twiddle_sq_R(k_vector, kprime_vector):
 #for the twist boundary case, the gruneisen parameter is unsed in the rotation term? Why?
 
 def Gamma_GBS(k_vector, kprime_vectors):
-   return tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_Delta) \
-          + tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_S)\
-          + tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_R)
+   return tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_Delta, tilt.ax) \
+          + tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_S, tilt.ax)\
+          + tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_R, tilt.ax)
 
 #Move to thermalTransport?
 def Gamma(k_vector):
@@ -93,38 +92,6 @@ if __name__ == "__main__":
     temp_dependence = TT.calculate_temperature_dependence(tilt, Gamma, temp_list = [100, 800])
 
 
-#%%Temperature plots
-
-#%%
-#rk_T = []
-#kappaT = []
-#kapitzaT = []
-#temps = np.linspace(100, 500, 10)
-#i=0
-#for T in temps:
-#    rk_T.append(1/AS.tbc_T(k_max, dk, vg_k, omega_k, T, n_1D, Gamma, 50))
-#    kappaT.append(1/AS.kL_T(Gamma, k_max, dk, vg_k, omega_k, T, 50))
-#    kapitzaT.append(rk_T[i]*kappaT[i])
-#    i = i+1
-##Thermal Bopundary Resistance figure
-#plt.figure()
-#plt.plot(temps, rk_T)
-#plt.xlabel('T (K)')
-#plt.ylabel(r'$R_K$ $(m^2K/W)$')
-#plt.savefig('tiltBoundary_Rk_T.pdf', bbox_inches = 'tight')
-#
-##Thermal Conductivity figure
-#plt.figure()
-#plt.plot(temps, kappaT)
-#plt.xlabel('T (K)')
-#plt.ylabel(r'$\kappa_\mathrm{L} \; \mathrm{(W/m/K)}$')
-#plt.savefig('tiltBoundary_kappa_T.pdf', bbox_inches = 'tight')
-##Kapitza length figure
-##plt.figure()
-##plt.plot(temps, kapitzaT)
-##plt.xlabel('T (K)')
-##plt.ylabel(r'$L_K$ $m$')
-##plt.savefig('tiltBoundary_kapitza_T.pdf', bbox_inches = 'tight')
     
 #%%
 '''

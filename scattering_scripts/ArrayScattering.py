@@ -24,7 +24,8 @@ class ArrayScattering:
        V: avg. atomic volume
        N: number of atoms per unit cell
        d_GS: avg. grain size
-       ax: axis of dislocation spacing, {x:1, y:2, z:3}
+       ax: axis of dislocation spacing, x=0, y=1, z=2, dictionary for 'twist' or heterointerface'
+       single value for 'tilt', none for twin
        geom = ['twist', 'tilt', 'twin']
        Initialize an ArrayScattering object with the crystal and microstructure inputs
     '''
@@ -200,7 +201,7 @@ class ArrayScattering:
         kprime_list.append([-kx, ky, kz])
         for m in m_values:
             for sign in [-1, 1]:
-                kprime_list.append([self.kxprime_msigma(kx, kz, m, sign, self.D), ky, kz-self.qm(m,self.D)])
+                kprime_list.append([self.kxprime_msigma(kx, kz, m, sign), ky, kz-self.qm(m)])
     
         return kprime_list
     
@@ -227,7 +228,7 @@ class ArrayScattering:
         plt.show(block=False)
     
     
-    def GammaArray(self, k_vector, kprime_vectors, V1_twiddle_sq):
+    def GammaArray(self, k_vector, kprime_vectors, V1_twiddle_sq, ax):
         '''
         Performs sum over all possible k' states.
         Requires the magnitude squared of the Fourier transform
@@ -238,13 +239,13 @@ class ArrayScattering:
         '''
         k = ArrayScattering.k_mag(k_vector)
         kx = k_vector[0]
-        kD = k_vector[self.ax]
+        kD = k_vector[ax]
         # sum over all possible kprime_vectors
         i=0
         running_sum = 0
         for kprime_vector in kprime_vectors:
             kxprime = kprime_vector[0]
-            kDprime = kprime_vector[self.ax]
+            kDprime = kprime_vector[ax]
             qx = kxprime - kx
             qD = kDprime - kD
             running_sum = running_sum + \

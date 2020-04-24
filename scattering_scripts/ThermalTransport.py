@@ -117,6 +117,8 @@ def tbc_T(Gamma, gb : AS, n_k, n_angle, T):
         tbc_int = tbc_int + a*vg*Cv(k,T, gb.omega_kmag(k))*dk
     return (1/4)*tbc_int
 
+
+
 def calculate_spectral_props(gb : AS, Gamma, prop_list = ['tau', 'transmissivity', 'TBC', 'kappa'],\
                              n_angle = 100, n_k = 100, T = 300):
     '''
