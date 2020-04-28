@@ -76,6 +76,17 @@ rot_tensor_x = [[1, 0, 0], [0, cos(theta), -sin(theta)], [0, sin(theta), cos(the
 rot_tensor_y = [[cos(theta), 0, sin(theta)], [0, 1, 0], [-sin(theta), 0, cos(theta)]]
 rot_tensor_z = [[cos(theta), -sin(theta), 0],[sin(theta), cos(theta), 0],[0, 0, 1]]
 
+
+'''
+Input dict
+'''
+input_dict = {'avg_vs': average_group_velocity(vg_mat),
+             'atmV': [2E-29],
+             'N': 5,
+             'nu' : 0.29,
+             'gruneisen' : 1,
+        }
+
 def average_group_velocity(vg_mat):
     vt_3 = (vg_mat[0][0]**2 + vg_mat[0][1]**2 + vg_mat[0][2]**2)**(3/2)
     vt2_3 = (vg_mat[1][0]**2 + vg_mat[1][1]**2 + vg_mat[1][2]**2)**(3/2)
@@ -127,14 +138,6 @@ def AMM_transmissivity(k_vector, theta):
         a = 0
     return a
 
-#def AMM_transmissivity(misorient, cos_inc):
-#    v1, v2 = vs_rot(k_vector, misorient)
-#    try:
-#        cos_trans = asin((v2/v1) * sin(acos(cos_inc)))
-#        a = (4 * v1 * v2 * cos_inc * cos_trans)/()
-#    except:
-#        a = 0
-#    return a
 
 def V_tilde_sq_R(k_vector, kprime_vector, theta):
     '''

@@ -195,57 +195,8 @@ if __name__ == "__main__":
     SPlt.diffraction_plot(twist, Gamma_list[0], Gamma_list[1])
     spectral = TT.calculate_spectral_props(twist, Gamma, prop_list = ['tau', 'transmissivity', 'TBC', 'kappa'],\
                                          n_angle = 100, n_k = 100, T = 300)
+    temp_dependence = TT.calculate_temperature_dependence(twist, Gamma, temp_list = [100, 800])
 
-'''
-Calculation of spectral tau and kappa
-
-'''
-#omega_list = []
-#vg_list = []
-#tau_list = []
-#kappa_list = []
-#trans_list = []
-#tbc_list = []
-#T = 300
-#for k in k_mags:
-#    omega_list.append(omega_k([k,0,0])) # omega and vg are supposed to be only a function of k, not k_vector. This is tacky and needs to be fixed!
-#    vg_list.append(vg_k([k,0,0]))
-#    tau_list.append(AS.tau_spectral(Gamma_rot, k, vg_k, 50))
-#    trans = AS.transmissivity(k, vg_k, n_1D, Gamma_rot, 50)
-#    trans_list.append(trans)
-#    tbc_list.append(AS.tbc_spectral(k, vg_k, omega_k, T, Gamma_rot, n_1D, 50))
-#    kappa_list.append(AS.kL_spectral(Gamma_rot, k, vg_k, omega_k, T, 50))
-#    
-#outfile = str(twist) + '_twist_vsf.npz'
-#np.savez(outfile,np.array(tau_list), np.array(kappa_list), np.array(trans_list), np.array(tbc_list))
-###
-###
-##    
-###Save the generated lists
-##outfile = str(twist) + '_spectral.npz'
-##np.savez(np.array(omega_list), np.array(tau_list), np.array(tbc_list), np.array(kappa_list))
-##    
-##
-##plt.figure()
-##plt.xlabel(r'$k \; \mathrm{(m^{-1})}$', fontsize=16)
-##plt.ylabel(r'$\tau \; \mathrm{(ns)}$', fontsize=16)
-##plt.plot(k_mags, tau_list)
-##plt.savefig('twistBoundary_D1e-9.pdf', dpi=400, bbox_inches = 'tight')
-##plt.show(block=False)
-##
-##plt.figure
-##plt.xlabel(r'$k \; \mathrm{(m^{-1})}$', fontsize=16)
-##plt.ylabel(r'$\kappa_\mathrm{L} \; \mathrm{(W/m/K)}$', fontsize=16)
-##plt.plot(k_mags, kappa_list)
-##plt.savefig('twistKappa_D1e-9.pdf', dpi=400, bbox_inches = 'tight')
-##plt.show(block=False)
-##    
-#plt.figure()
-#plt.xlabel(r'$k \; \mathrm{(m^{-1}}$')
-#plt.ylabel(r'$TBC$')
-#plt.plot(k_mags, tbc_list)
-#plt.savefig('tiltBoundary_tbc.pdf', dpi=400, bbox_inches = 'tight')
-#plt.show()
 
 
 '''
