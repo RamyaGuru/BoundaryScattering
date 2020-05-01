@@ -5,9 +5,10 @@ Created on Tue Jan  7 09:50:47 2020
 
 @author: ramyagurunathan
 
-Coherent Twin Boundary
+Coherent Scattering: Elastic Anisotropy
 
 -> no dislocation array, just the misoritentation in elastic properties
+-> make child class of ArrayScatterinf
 
 
 This is a 60 degree twist boundary normal to the "x" direction

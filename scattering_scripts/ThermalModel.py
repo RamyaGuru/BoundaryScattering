@@ -42,6 +42,7 @@ class Elasticity:
         self.bulkMod = self.elast[0]['elasticity']['K_VRH'] #Bulk modulus
         self.shearMod = self.elast[0]['elasticity']['G_VRH'] #shear modulus
         self.poisson = self.elast[0]['elasticity']['homogeneous_poisson'] # poisson ratio
+        self.elastic_tensor = self.elast[0]['elasticity']['elastic_tensor'] # elastic tensor
         if self.elast[0]['elasticity']['warnings'] is not None:
             print(self.elast[0]['elasticity']['warnings'])
             

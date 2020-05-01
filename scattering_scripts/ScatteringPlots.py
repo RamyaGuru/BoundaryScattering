@@ -12,6 +12,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import ThermalTransport as TT
 from ArrayScattering import ArrayScattering as AS
+import math
+import AngularVs
 
 mpl.rcdefaults()
 mpl.rcParams['font.sans-serif'] = 'Apple Symbols'
@@ -79,4 +81,6 @@ def spectral_plots(gb : AS, spectral : dict, prop_list = ['tau', 'transmissivity
             plt.savefig(gb['geom'] + gb['theta'] + 'spectral_' + prop ,\
                         dpi=400, bbox_inches = 'tight')
         
+    
+
     

@@ -23,7 +23,6 @@ kB = 1.38064852e-23
 PROPERTIES: options for calculated properties including tranmissivity, thermal
 boundary conductance, and thermal conductivity
 ''' 
-args = {'Gamma'}
       
 
 def tau_spectral(Gamma, gb : AS, k, n_angle, T):
@@ -31,8 +30,6 @@ def tau_spectral(Gamma, gb : AS, k, n_angle, T):
     Calculates a spectral tau which can be applied to the
     single mode, isotropic Callaway model. This relaxation 
     time is for kappa_xx.
-    
-    Don't think I need to adjust for the second grid. 
      
     '''
     d_angle = (math.pi / 2) / n_angle
@@ -120,6 +117,8 @@ def tbc_T(Gamma, gb : AS, n_k, n_angle, T):
 
 
 def calculate_spectral_props(gb : AS, Gamma, prop_list = ['tau', 'transmissivity', 'TBC', 'kappa'],\
+                             function = {'tau' : tau_spectral, 'transmissivity' : transmissivity_spectral,
+                'TBC' : tbc_spectral, 'kappa' : kL_spectral},
                              n_angle = 100, n_k = 100, T = 300):
     '''
     Calculate spectral properties
@@ -130,8 +129,8 @@ def calculate_spectral_props(gb : AS, Gamma, prop_list = ['tau', 'transmissivity
         value is the list of property values at the freqeuncies in the omega list
     '''
     spectral = {'vg' : [], 'omega' : []}
-    function = {'tau' : tau_spectral, 'transmissivity' : transmissivity_spectral,
-                'TBC' : tbc_spectral, 'kappa' : kL_spectral}
+#    function = {'tau' : tau_spectral, 'transmissivity' : transmissivity_spectral,
+#                'TBC' : tbc_spectral, 'kappa' : kL_spectral}
     if any(prop_list) not in ['tau', 'transmissivity', 'TBC', 'kappa']:
         ValueError('Property not in allowed values list')
     if 'tau' in prop_list:

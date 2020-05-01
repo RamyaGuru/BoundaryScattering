@@ -7,6 +7,7 @@ These are for an interface perpendicular to the x-axis
 import math
 import numpy as np
 import matplotlib.pyplot as plt
+from helper import * 
 
 '''
 Constants
