@@ -16,12 +16,13 @@ This is a 60 degree twist boundary normal to the "x" direction
 import sys
 sys.path.append('/Users/ramyagurunathan/Documents/PhDProjects/The-Grid-Interface/christoffel')
 
-from ArrayScattering import ArrayScattering
+from ArrayScattering import ArrayScattering as AS
 from christoffel import Christoffel 
 import numpy as np
 import matplotlib.pyplot as plt
 import math
 from math import pi, cos, sin, acos, asin
+import helper as h
 
 np.seterr(divide='raise', invalid="raise")
 
@@ -81,7 +82,7 @@ rot_tensor_z = [[cos(theta), -sin(theta), 0],[sin(theta), cos(theta), 0],[0, 0, 
 '''
 Input dict
 '''
-input_dict = {'avg_vs': average_group_velocity(vg_mat),
+input_dict = {'avg_vs': h.average_group_velocity(vg_mat),
              'atmV': [2E-29],
              'N': 5,
              'nu' : 0.29,
@@ -209,7 +210,7 @@ def spectral_transmissivity(k, vs_k, omega_k, misorient, T, n):
                             k * np.cos(theta - (d_angle / 2))]
             a = AMM_transmissivity(k_vector_int, misorient)
             running_integrand = running_integrand + \
-            (sin(theta - (d_angle / 2))**(2) * cos(phi - (d_angle / 2))) * a #Double check these powers? Shouldn't actually be squared?
+            (sin(theta - (d_angle / 2))**(2) * cos(phi - (d_angle / 2))) * a #Double check these powers? Shouldn't actually be squared? questioned where these are coming from...
     return running_integrand * d_angle**2
 
 def spectral_kL(k, vs_k, omega_k, misorient, T, n):

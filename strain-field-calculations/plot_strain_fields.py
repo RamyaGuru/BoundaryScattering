@@ -76,7 +76,7 @@ plt.colorbar()
 Apply appropriate periodicity to the atom displacements
 '''
 
-def u():
+
     
     
 

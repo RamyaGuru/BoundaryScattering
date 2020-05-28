@@ -54,7 +54,7 @@ def V1_twiddle_sq_R(k_vector, kprime_vector):
 #for the twist boundary case, the gruneisen parameter is unsed in the rotation term? Why?
 
 def Gamma_GBS(k_vector, kprime_vectors):
-   return tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_Delta, tilt.ax) \
+    return tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_Delta, tilt.ax) \
           + tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_S, tilt.ax)\
           + tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_R, tilt.ax)
 
@@ -84,12 +84,12 @@ if __name__ == "__main__":
     Gamma_list = calculate_Gammas(200)
     SPlt.diffraction_plot(tilt, Gamma_list[0], Gamma_list[1])
     SPlt.convergence_tau_plot(tilt, Gamma, 100, T = 300)
-    spectral = TT.calculate_spectral_props(tilt, Gamma, prop_list = ['tau', 'transmissivity', 'TBC', 'kappa'],\
+    spectral = TT.calculate_spectral_props(tilt, Gamma, prop_list = ['tau'],\
                                          n_angle = 100, n_k = 100, T = 300)
 #    with open('spectral.json') as json_file:
 #        spectral = json.load(json_file)
-    SPlt.spectral_plots(tilt, spectral)
-    temp_dependence = TT.calculate_temperature_dependence(tilt, Gamma, temp_list = [100, 800])
+    SPlt.spectral_plots(tilt, spectral, save = True)
+#    temp_dependence = TT.calculate_temperature_dependence(tilt, Gamma, temp_list = [100, 800])
 
 
     

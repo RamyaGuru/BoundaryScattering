@@ -10,6 +10,7 @@ Helper functions
 
 from ThermalModel import Elasticity, CrystStruct, ThermalTransport
 from math import pi as pi, cos, sin
+import numpy as np
 
 '''
 Constants
@@ -43,7 +44,7 @@ def k_mag(k_vector):
     Description:
     Outputs magnitude of the k_vector
     '''
-    return (k_vector[0]**2 + k_vector[1]**2 + k_vector[2]**2)**(1 / 2)
+    return np.sqrt(k_vector[0]*k_vector[0] + k_vector[1]*k_vector[1] + k_vector[2]*k_vector[2])
 
 
 def average_group_velocity(vg_mat):
@@ -56,3 +57,7 @@ def average_group_velocity(vg_mat):
    vl_3 = (vg_mat[2][0]**2 + vg_mat[2][1]**2 + vg_mat[2][2]**2)**(3/2)
    avg_vg = ((1/3)*(1/vt_3 + 1/vt2_3 + 1/vl_3))**(-1/3)
    return avg_vg*1000
+
+def average_phase_velocity(vp):
+    avg_vp = (1/3) * ( vp[0]**(-3) + vp[1]**(-3) + vp[2]**(-3))**(-1/3)
+    return avg_vp

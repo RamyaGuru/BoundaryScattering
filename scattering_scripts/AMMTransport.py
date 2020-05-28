@@ -15,11 +15,11 @@ sys.path.append('/Users/ramyagurunathan/Documents/PhDProjects/The-Grid-Interface
 from christoffel import Christoffel 
 import helper as h
 import numpy as np
-from math import cos, sin, acos, asin, pi
+from math import cos, sin, acos, asin, pi, nan
 import ThermalTransport as TT
 
 class AMMTransport():
-    def __init__(self, stiffness_matrix, density, atmV, N, theta, christoffel = False):
+    def __init__(self, stiffness_matrix, density, atmV, N, theta, christoffel = True):
         self.cmat = stiffness_matrix
         self.density = density
         self.C11 = self.cmat[0][0]
@@ -78,31 +78,44 @@ class AMMTransport():
             k = k_vector
         return self.vs_k(k_vector) * k
     
-    def vs_rot(self, k_vector, theta):
+    def vs_rot(self, k_vector, rot_tensor_method, theta):
         '''
         Method to calculate the average speed of sound change for a misorientation angle
         '''
-        self.ch_obj.set_direction_cartesian(k_vector)
+        self.ch_obj.rotate_tensor(x_dir = [1.0, 0.0, 0.0], z_dir = [0.0, 0.0, 1.0])
+        k_norm = k_vector / h.k_mag(k_vector)
+        self.ch_obj.set_direction_cartesian(k_norm)
         vs1 = self.ch_obj.get_group_velocity()
         vs1 = h.average_group_velocity(vs1) #a
-        self.ch_obj.rotate_tensor(h.rot_tensor_y(theta))
-        self.ch_obj.set_direction_cartesian(k_vector)
+        self.ch_obj.rotate_tensor(rot_tensor_method(theta))
+        self.ch_obj.set_direction_cartesian(k_norm)
         vs2 = self.ch_obj.get_group_velocity()
         vs2 = h.average_group_velocity(vs2)
         self.ch_obj.rotate_tensor(x_dir = [1.0, 0.0, 0.0], z_dir = [0.0, 0.0, 1.0])
         return vs1, vs2
+    
+    def vs_rot_Snell(self, k_vector, rot_tensor_method, theta):
+        k = h.k_mag(k_vector)
+        v1, v2 = self.vs_rot(k_vector, h.rot_tensor_y, theta)
+        theta1 = acos(k_vector[0]/k)
+        try:
+            theta2 = asin((v2/v1)*sin(theta1))
+        except:
+            theta2 = nan
+        return v1, v2, theta2
     
     def AMM_transmissivity(self, k_vector, theta):
         '''
         Method to calculate the transmissivity from AMM. 
         '''
         k = h.k_mag(k_vector)
-        v1, v2 = self.vs_rot(k_vector, theta)
+        v1, v2 = self.vs_rot(k_vector, h.rot_tensor_y, theta)
         theta1 = acos(k_vector[0]/k)
         try:
             theta2 = asin((v2/v1)*sin(theta1))
-            a = (4*v1*v2*cos(theta1)*cos(theta2))/((v1*cos(theta1)\
-                            + v2*cos(theta2))**2)
+            a = (4 * (v2 / v1) * (cos(theta2) / cos(theta1))) / ((v2/v1) + cos(theta2) / cos(theta1))**2
+#            a = (4*v1*v2*cos(theta1)*cos(theta2))/((v1*cos(theta1)\
+#                            + v2*cos(theta2))**2)
         except: 
             #must get reflection here.. so no transmissivity?
             a = 0
@@ -121,7 +134,7 @@ class AMMTransport():
                                 k * np.cos(theta - (d_angle / 2))]
                 a = self.AMM_transmissivity(k_vector_int, theta)
                 running_integrand = running_integrand + \
-                (sin(theta - (d_angle / 2))**(2) * cos(phi - (d_angle / 2))) * a #Double check these powers? Shouldn't actually be squared?
+                (sin(theta - (d_angle / 2))**(2) * cos(phi - (d_angle / 2))) * a #Double check these powers? Shouldn't actually be squared?.. a forward scattering suprresion thing?
         return running_integrand * d_angle**2
     
     def calculate_spectral_props(self, prop_list = ['transmissivity'],\
@@ -151,10 +164,21 @@ class AMMTransport():
         
         
 if __name__ == "__main__":
-    cmat = np.array([[74.4, 21.7, 27.0, 13.3, 0.0, 0.0], [21.7, 74.4, 27.0, -13.3, 0.0, 0.0],\
+    Bi2Te3 = np.array([[74.4, 21.7, 27.0, 13.3, 0.0, 0.0], [21.7, 74.4, 27.0, -13.3, 0.0, 0.0],\
             [27.0, 27.0, 47.7, 0.0, 0.0, 0.0], [13.3, -13.3, 0.0, 27.4, 0.0, 0.0],\
             [0.0, 0.0, 0.0, 0.0, 27.4, 13.3], [0.0, 0.0, 0.0, 0.0, 13.3, 26.4]])
-    density = 7480
+    Si = np.array([[166.0, 64.0, 64.0, 0.0, 0.0, 0.0], [64.0, 166.0, 64.0, 0.0, 0.0, 0.0], [64.0, 64.0, 166.0, 0.0, 0.0, 0.0],\
+                [0.0, 0.0, 0.0, 80.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 80.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 80.0]])
+    diamond = np.array([[1026.2, 90.558, 90.558, 0.0, 0.0, 0.0], [90.558, 10262, 90.558, 0.0, 0.0, 0.0], [90.558, 90.558, 1026.2, 0.0, 0.0, 0.0],\
+                [0.0, 0.0, 0.0, 314.3, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 314.3, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 314.3]])
+    InP = np.array([[87, 46, 46, 0.0, 0.0, 0.0], [46, 87, 46, 0.0, 0.0, 0.0], [46, 46, 87, 0.0, 0.0, 0.0],\
+                [0.0, 0.0, 0.0, 42, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0,42, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 42]])
+#    cmat = InP
+#    density = 4810
+#    cmat = Bi2Te3
+#    density  = 7700
+    cmat = diamond
+    density = 3510
     twin = AMMTransport(cmat, density, atmV = 2E-29, N = 2, theta = 60, christoffel = True)
-    spectral = twin.calculate_spectral_props(prop_list = ['transmissivity'], n_angle = 100, n_k = 100, T = 300)
+    spectral = twin.calculate_spectral_props(prop_list = ['transmissivity'], n_angle = 100, n_k = 10, T = 300)
     

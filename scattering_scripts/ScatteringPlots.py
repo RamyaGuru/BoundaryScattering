@@ -13,7 +13,7 @@ import numpy as np
 import ThermalTransport as TT
 from ArrayScattering import ArrayScattering as AS
 import math
-import AngularVs
+#import AngularVs
 
 mpl.rcdefaults()
 mpl.rcParams['font.sans-serif'] = 'Apple Symbols'
@@ -37,6 +37,7 @@ def diffraction_plot(gb : AS, k_norm_list, Gamma_GBS_list, save = False):
     plt.xlabel(r'$k/k_{\mathrm{max}}$', fontsize=16)
     plt.ylabel(r'$\Gamma \; \mathrm{(ns^{-1})}$', fontsize=16)
     plt.xlim([0,1])
+    plt.ylim([0,100])
     plt.plot(k_norm_list, Gamma_GBS_list)
     if save:
         plt.savefig(gb['geom'] + '_' + str(gb['theta']) + '_diffraction.pdf', bbox_inches = 'tight')
@@ -54,7 +55,7 @@ def convergence_tau_plot(gb : AS, Gamma, n_angle, T):
         tau_nlist.append(TT.tau_spectral(Gamma, gb, gb.k_max / 5., n_angle, T))    
     plt.figure()
     plt.xlabel('n', fontsize=16)
-    plt.ylabel(r'$\tau(k)^{-1} \; \mathrm{(ns^{-1})}$', fontsize=16)
+    plt.ylabel(r'$\tau(k) \; \mathrm{(ns)}$', fontsize=16)
     plt.plot(n_angle_list, tau_nlist)
     plt.show(block=False)
 
@@ -78,7 +79,8 @@ def spectral_plots(gb : AS, spectral : dict, prop_list = ['tau', 'transmissivity
         plt.ylabel(labels[prop], fontsize=16)
         plt.plot([ f / gb.vs for f in spectral['omega']], spectral[prop])
         if save: 
-            plt.savefig(gb['geom'] + gb['theta'] + 'spectral_' + prop ,\
+            np.save(str(gb.geom) + str(gb.theta) + 'spectral_' + prop + '.npy', np.array([spectral['omega'], spectral[prop]]))
+            plt.savefig(str(gb.geom) + str(gb.theta) + 'spectral_' + prop + '.pdf' ,\
                         dpi=400, bbox_inches = 'tight')
         
     

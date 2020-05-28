@@ -23,8 +23,7 @@ kB = 1.38064852e-23
 PROPERTIES: options for calculated properties including tranmissivity, thermal
 boundary conductance, and thermal conductivity
 ''' 
-      
-
+#      
 def tau_spectral(Gamma, gb : AS, k, n_angle, T):
     '''
     Calculates a spectral tau which can be applied to the
@@ -34,7 +33,7 @@ def tau_spectral(Gamma, gb : AS, k, n_angle, T):
     '''
     d_angle = (math.pi / 2) / n_angle
     running_integrand = 0
-    theta_list = np.arange(d_angle, math.pi / 2 + d_angle, d_angle)
+    theta_list = np.arange(d_angle, math.pi / 2 + d_angle, d_angle) # not including all incident angles? should check this
     phi_list = np.arange(d_angle, math.pi / 2, d_angle)
     for theta in theta_list:
         for phi in phi_list:
@@ -45,7 +44,7 @@ def tau_spectral(Gamma, gb : AS, k, n_angle, T):
             running_integrand = running_integrand + \
             ((np.sin(theta - (d_angle / 2))**3 * np.cos(phi - (d_angle / 2))**2) * Gamma(k_vector_int)**(-1))
     
-    return 8 * running_integrand * d_angle**2 * (3 / (4 * math.pi)) 
+    return 8 * running_integrand * d_angle**2 * (3 / (4 * math.pi))
     
 
 def transmissivity_spectral(Gamma, gb : AS, k, n_angle, T):        

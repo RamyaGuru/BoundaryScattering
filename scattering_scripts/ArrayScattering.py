@@ -44,6 +44,7 @@ class ArrayScattering:
        self.k_max = (6 * math.pi**2 / (self.V * self.N))**(1 / 3)
        self.nu = nu
        self.omegaD = self.vs * self.k_max
+       self.geom = geom
        if geom == 'twist' or geom == 'tilt':
            self.theta = theta
            self.D = self.b / ( 2 * math.tan(theta * (math.pi/180) / 2))
@@ -237,6 +238,7 @@ class ArrayScattering:
         ax: axis of the dislocation spacing
         
         Double-checked: 1/7/2020
+        Rather than just Gamma, this is basically relaxation time?
         '''
         k = ArrayScattering.k_mag(k_vector)
         kx = k_vector[0]
@@ -253,4 +255,9 @@ class ArrayScattering:
             V1_twiddle_sq(k_vector, kprime_vector) * (-qx * kx - qD * kD) * abs(kxprime) ** -1  
             i+=1
         return (self.n_1D / (hbar ** 2 * self.D ** 2 * self.vg_kmag(k) * k)) * running_sum 
-
+    
+    def GammaArray_rot(self, k_vector, V_twiddle_R):
+        k = ArrayScattering.k_mag(k_vector)
+        #(2 * k_vector[0]**2 / k**2) 
+        return (self.n_1D / (hbar ** 2 * self.vs)) * ( 2 * k_vector[0]**2 / k**2) * V_twiddle_R(k_vector)
+    
