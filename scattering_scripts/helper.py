@@ -47,15 +47,16 @@ def k_mag(k_vector):
     return np.sqrt(k_vector[0]*k_vector[0] + k_vector[1]*k_vector[1] + k_vector[2]*k_vector[2])
 
 
+
 def average_group_velocity(vg_mat):
    '''
    If passed a group velocity matrix of the acoustic phonons, provides the 
    average group velocity scalar value
    '''
-   vt_3 = (vg_mat[0][0]**2 + vg_mat[0][1]**2 + vg_mat[0][2]**2)**(3/2)
-   vt2_3 = (vg_mat[1][0]**2 + vg_mat[1][1]**2 + vg_mat[1][2]**2)**(3/2)
-   vl_3 = (vg_mat[2][0]**2 + vg_mat[2][1]**2 + vg_mat[2][2]**2)**(3/2)
-   avg_vg = ((1/3)*(1/vt_3 + 1/vt2_3 + 1/vl_3))**(-1/3)
+   vt_3 = (vg_mat[0][0]**2 + vg_mat[0][1]**2 + vg_mat[0][2]**2)**(1/2)
+   vt2_3 = (vg_mat[1][0]**2 + vg_mat[1][1]**2 + vg_mat[1][2]**2)**(1/2)
+   vl_3 = (vg_mat[2][0]**2 + vg_mat[2][1]**2 + vg_mat[2][2]**2)**(1/2)
+   avg_vg = ((1/3)*(1/vt_3**3 + 1/vt2_3**3 + 1/vl_3**3))**(-1/3)
    return avg_vg*1000
 
 def average_phase_velocity(vp):

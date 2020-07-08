@@ -6,6 +6,9 @@ import numpy as np
 import helper
 import json
 
+'''
+Tilt Scattering Riley Scripts
+'''
 
 
 '''
@@ -23,7 +26,7 @@ Initialize input dictionary with Materials Project
 #input_dict = helper.input_dict_from_MP('mp-149')
 
 #Instantiate as object of ArrayScattering
-tilt = AS(**input_dict, geom = 'tilt', theta = 10, ax = 2, d_GS = 350E-9)
+tilt = AS(**input_dict, geom = 'tilt', theta = 5, ax = 2, d_GS = 350E-9)
 
 # Scattering matrix elements
 '''
@@ -54,9 +57,10 @@ def V1_twiddle_sq_R(k_vector, kprime_vector):
 #for the twist boundary case, the gruneisen parameter is unsed in the rotation term? Why?
 
 def Gamma_GBS(k_vector, kprime_vectors):
-    return tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_Delta, tilt.ax) \
-          + tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_S, tilt.ax)\
-          + tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_R, tilt.ax)
+    tot = [tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_Delta, tilt.ax) \
+          ,tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_S, tilt.ax)\
+          ,tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_R, tilt.ax)]
+    return sum(tot)
 
 #Move to thermalTransport?
 def Gamma(k_vector):
@@ -81,14 +85,14 @@ def calculate_Gammas(n_k):
 
 
 if __name__ == "__main__":
-    Gamma_list = calculate_Gammas(200)
-    SPlt.diffraction_plot(tilt, Gamma_list[0], Gamma_list[1])
-    SPlt.convergence_tau_plot(tilt, Gamma, 100, T = 300)
-    spectral = TT.calculate_spectral_props(tilt, Gamma, prop_list = ['tau'],\
-                                         n_angle = 100, n_k = 100, T = 300)
+#    Gamma_list = calculate_Gammas(200)
+#    SPlt.diffraction_plot(tilt, Gamma_list[0], Gamma_list[1])
+    SPlt.convergence_tau_plot(tilt, Gamma, 400, T = 300, save = 'True')
+#    spectral = TT.calculate_spectral_props(tilt, Gamma, prop_list = ['tau'],\
+#                                         n_angle = 200, n_k = 100, T = 300)
 #    with open('spectral.json') as json_file:
 #        spectral = json.load(json_file)
-    SPlt.spectral_plots(tilt, spectral, save = True)
+#    SPlt.spectral_plots(tilt, spectral, prop_list = ['tau'], save = True)
 #    temp_dependence = TT.calculate_temperature_dependence(tilt, Gamma, temp_list = [100, 800])
 
 

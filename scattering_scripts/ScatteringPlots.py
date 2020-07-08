@@ -44,21 +44,30 @@ def diffraction_plot(gb : AS, k_norm_list, Gamma_GBS_list, save = False):
 
 
         
-def convergence_tau_plot(gb : AS, Gamma, n_angle, T):
+def convergence_tau_plot(gb : AS, Gamma, n_angle, T, save = False):
     '''
     Converge relaxation time w.r.t the differential angle (d_angle = 2*pi/n_angle)
     used when integrating over incident phonon directions    
     '''
-    n_angle_list = np.arange(4, n_angle, 2)
+    n_angle_list = np.arange(100, n_angle, 10)
     tau_nlist = []
     for n_angle in n_angle_list:
-        tau_nlist.append(TT.tau_spectral(Gamma, gb, gb.k_max / 5., n_angle, T))    
+        tau_nlist.append(TT.tau_spectral(Gamma, gb, gb.k_max / 20., n_angle, T)) 
+        print(tau_nlist)
     plt.figure()
     plt.xlabel('n', fontsize=16)
     plt.ylabel(r'$\tau(k) \; \mathrm{(ns)}$', fontsize=16)
     plt.plot(n_angle_list, tau_nlist)
     plt.show(block=False)
+    if save == True:
+        np.save(str(gb.geom) + str(gb.theta) + 'tau_conv.npy', np.array([n_angle_list, tau_nlist]))
 
+
+def directional_tau():
+    '''
+    Plot of tau versus the incident direction of the phonon
+    '''
+    
 
 def spectral_plots(gb : AS, spectral : dict, prop_list = ['tau', 'transmissivity', 'TBC', 'kappa'], save = False):
     '''
@@ -79,9 +88,27 @@ def spectral_plots(gb : AS, spectral : dict, prop_list = ['tau', 'transmissivity
         plt.ylabel(labels[prop], fontsize=16)
         plt.plot([ f / gb.vs for f in spectral['omega']], spectral[prop])
         if save: 
-            np.save(str(gb.geom) + str(gb.theta) + 'spectral_' + prop + '.npy', np.array([spectral['omega'], spectral[prop]]))
-            plt.savefig(str(gb.geom) + str(gb.theta) + 'spectral_' + prop + '.pdf' ,\
+            np.save(str(gb.geom) + str(gb.theta) + 'spectral_update' + prop + '.npy', np.array([spectral['omega'], spectral[prop]]))
+            plt.savefig(str(gb.geom) + str(gb.theta) + 'spectral_update' + prop + '.pdf' ,\
                         dpi=400, bbox_inches = 'tight')
+        
+#def directional_tau_plots(tau_list: list, n_angle):
+#    '''
+#    Heatmap on a sphere of tau values
+#    '''
+#    fig = plt.figure()
+#    ax = fig.add_subplot( 1, 1, 1, projection='3d')
+#    d_angle = (math.pi / 2) / n_angle
+#    u = np.arange(d_angle, math.pi / 2 + d_angle, d_angle)
+#    v = np.arange(d_angle, math.pi / 2, d_angle)
+#    # create the sphere surface
+#    XX = 10 * np.outer( np.cos( u ), np.sin( v ) )
+#    YY = 10 * np.outer( np.sin( u ), np.sin( v ) )
+#    ZZ = 10 * np.outer( np.ones( np.size( u ) ), np.cos( v ) )
+#    WW = XX.copy()
+#    for i in len(u):
+#        WW[i,:] = tau_list[]
+#        
         
     
 

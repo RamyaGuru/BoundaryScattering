@@ -11,6 +11,8 @@ Transport Properties Module
 import numpy as np
 from ArrayScattering import ArrayScattering as AS
 import math
+import pickle
+
 
 '''
 Constants
@@ -33,18 +35,27 @@ def tau_spectral(Gamma, gb : AS, k, n_angle, T):
     '''
     d_angle = (math.pi / 2) / n_angle
     running_integrand = 0
-    theta_list = np.arange(d_angle, math.pi / 2 + d_angle, d_angle) # not including all incident angles? should check this
-    phi_list = np.arange(d_angle, math.pi / 2, d_angle)
+    theta_list = np.arange(0, math.pi / 2 + d_angle, d_angle) # not including all incident angles? should check this
+    phi_list = np.arange(0, math.pi / 2 + d_angle, d_angle)
+    tau_directional = []
+    i = 0
     for theta in theta_list:
         for phi in phi_list:
             #this is giving you the circle of k points # conversion to sphereical coordinates for the integral
-            k_vector_int = [k * np.sin(theta - (d_angle / 2)) * np.cos(phi - (d_angle / 2)), \
-                            k * np.sin(theta - (d_angle / 2)) * np.sin(phi - (d_angle / 2)), \
-                            k * np.cos(theta - (d_angle / 2))]
+#            k_vector_int = [k * np.sin(theta - (d_angle / 2)) * np.cos(phi - (d_angle / 2)), \
+#                            k * np.sin(theta - (d_angle / 2)) * np.sin(phi - (d_angle / 2)), \
+#                            k * np.cos(theta - (d_angle / 2))]
+            k_vector_int = [k * np.cos(theta - (d_angle / 2)), \
+                            k * np.sin(theta - (d_angle / 2)) * np.cos(phi - (d_angle / 2)), \
+                            k * np.sin(theta - (d_angle / 2)) * np.sin(phi - (d_angle / 2))]
             running_integrand = running_integrand + \
-            ((np.sin(theta - (d_angle / 2))**3 * np.cos(phi - (d_angle / 2))**2) * Gamma(k_vector_int)**(-1))
-    
-    return 8 * running_integrand * d_angle**2 * (3 / (4 * math.pi))
+            ((np.sin(theta - (d_angle / 2)) * np.cos(theta - (d_angle / 2))**2) * Gamma(k_vector_int)) * d_angle**2
+            tau_directional.append([theta, phi, Gamma(k_vector_int)**(-1)])
+            i = i+1
+#            if i == 10:
+#                print(Gamma(k_vector_int))
+#                i = 0
+    return (8 * running_integrand * (3 / (4 * math.pi)))**(-1)
     
 
 def transmissivity_spectral(Gamma, gb : AS, k, n_angle, T):        
@@ -97,8 +108,13 @@ def tbc_spectral(Gamma, gb : AS, k, n_angle, T):
     '''
     vg = gb.vg_kmag(k)
     a = transmissivity_spectral(Gamma, gb, k, n_angle, T)
-    tbc = a*vg*Cv(k, T, gb.omega_kmag(k))
+    print(Cv(k, T, gb.omega_kmag(k)))
+    tbc = (a / (1 - a))*vg*Cv(k, T, gb.omega_kmag(k))
     return (1/4)*tbc
+
+def tbc_from_alpha(alpha, gb : AS, k, T):
+    vg = gb.vg_kmag(k)
+    return (1/4) *  (alpha / (1-alpha)) * vg * Cv(k, T, gb.omega_kmag(k))
 
 
 def tbc_T(Gamma, gb : AS, n_k, n_angle, T):
@@ -110,7 +126,7 @@ def tbc_T(Gamma, gb : AS, n_k, n_angle, T):
     for k in np.arange(dk, gb.k_max, dk):
         vg = gb.vg_kmag(k)
         a = transmissivity_spectral(Gamma, gb, k, n_angle, T)
-        tbc_int = tbc_int + a*vg*Cv(k,T, gb.omega_kmag(k))*dk
+        tbc_int = tbc_int + (a / (1 - a))*vg*Cv(k,T, gb.omega_kmag(k))*dk
     return (1/4)*tbc_int
 
 
@@ -166,10 +182,35 @@ def calculate_temperature_dependence(gb : AS, Gamma, temp_list, prop_list = ['TB
         temp_dependence['TBC'] = []
     if 'kappa' in prop_list:
         temp_dependence['kappa'] = [] 
-    params = {'Gamma' : Gamma, 'gb' : gb, 'n_k' : n_k, 'n_angle' : n_angle, 'T' :temp_list[0]}    
+    params = {'Gamma' : Gamma, 'gb' : gb, 'n_k' : n_k, 'n_angle' : n_angle, 'T' : temp_list[0]}    
     for T in temp_list:
         params['T'] = T
         for prop in prop_list:
             temp_dependence[prop].append(function[prop](**params))
     return temp_dependence
     
+def transport_coeffs_from_tau(gb : AS, k_list, tau_spectral, T, save = False):
+    '''
+    Return the thermal conductivity and TBC from the spectral tau array
+    '''
+    kappa = 0
+    TBC = 0
+    alpha = []
+    dk =  gb.k_max / len(k_list)
+    for tau, k in zip(tau_spectral, k_list):
+        vg = gb.vg_kmag(k)
+        Cv_s = Cv(k, T, gb.omega_kmag(k))
+        kappa = kappa + Cv_s * vg**2 * tau * 1E-9 * dk
+        a = (vg * tau * 1E-9 * gb.n_1D) / ((3/4) + (vg * tau * 1E-9 * gb.n_1D))
+        alpha.append(a)
+        TBC = TBC + (a / (1 - a)) * vg * Cv_s * dk
+    transport = {'kappa': kappa / 3, 'TBC' : TBC / 4, 'spectral_alpha': alpha}
+    if save:
+        np.savez('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/' +\
+                 str(gb.geom) + str(gb.theta) + 'transport' + str(T) + '.npz')
+    return transport
+
+# add method to get the thermal boundary conductance from a scalar transmissivity value    
+
+#def tbc_from_alpha(amm : AMM, alpha, n_k, T):
+#    TBC = 0
