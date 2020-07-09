@@ -37,8 +37,8 @@ def tau_spectral(Gamma, gb : AS, k, n_angle, T):
     running_integrand = 0
     theta_list = np.arange(0, math.pi / 2 + d_angle, d_angle) # not including all incident angles? should check this
     phi_list = np.arange(0, math.pi / 2 + d_angle, d_angle)
-    tau_directional = []
-    i = 0
+#    tau_directional = []
+#    i = 0
     for theta in theta_list:
         for phi in phi_list:
             #this is giving you the circle of k points # conversion to sphereical coordinates for the integral
@@ -50,8 +50,8 @@ def tau_spectral(Gamma, gb : AS, k, n_angle, T):
                             k * np.sin(theta - (d_angle / 2)) * np.sin(phi - (d_angle / 2))]
             running_integrand = running_integrand + \
             ((np.sin(theta - (d_angle / 2)) * np.cos(theta - (d_angle / 2))**2) * Gamma(k_vector_int)) * d_angle**2
-            tau_directional.append([theta, phi, Gamma(k_vector_int)**(-1)])
-            i = i+1
+#            tau_directional.append([theta, phi, Gamma(k_vector_int)**(-1)])
+#            i = i+1
 #            if i == 10:
 #                print(Gamma(k_vector_int))
 #                i = 0
