@@ -72,7 +72,7 @@ Initialize input dictionary with Materials Project
 '''
 #input_dict = helper.input_dict_from_MP('mp-149')
 
-twist = AS(**input_dict, geom = 'twist', theta = 1, ax = {'n' : 1, 'm' : 2}, d_GS = 350E-9)
+twist = AS(**input_dict, geom = 'twist', theta = 5, ax = {'n' : 1, 'm' : 2}, d_GS = 350E-9)
 amm = AMMTransport(cmat, density, input_dict['atmV'][0], input_dict['N'])
 '''
 Rotation component:
@@ -109,11 +109,6 @@ def V_twiddle_sq_R(k_vector):
 #    v1, v2 = amm.vs_rot(knorm, helper.rot_tensor_x, twist.theta)
 #    return ((helper.hbar / (2 * pi)) * abs(1000 * (v2 - v1)) * (k / q_vector[0]))**2  
     
-
-
-'''
-Rotation Potential
-'''
 
 #Shouldn't the rotation be about x?
 def V_R_ch_snell(k_vector):

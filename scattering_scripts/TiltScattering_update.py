@@ -42,7 +42,7 @@ Initialize input dictionary with Materials Project
 #input_dict = helper.input_dict_from_MP('mp-149')
 
 #Instantiate as object of ArrayScattering
-tilt = AS(**input_dict, geom = 'tilt', theta = 15, ax = 1, d_GS = 350E-9)
+tilt = AS(**input_dict, geom = 'tilt', theta = 5, ax = 1, d_GS = 350E-9)
 amm = AMMTransport(cmat, density, input_dict['atmV'][0], input_dict['N'])
 
 '''
@@ -68,7 +68,7 @@ Rotation Scattering Potential
 def V_tilde_sq_R(k_vector):
     kmag = helper.k_mag(k_vector)
     knorm = k_vector / kmag
-    v1, v2, theta2 = amm.vs_rot_Snell(knorm, helper.rot_tensor_x, tilt.theta)
+    v1, v2, theta2 = amm.vs_rot_Snell(knorm, helper.rot_tensor_z, tilt.theta)
     return abs(helper.hbar * (abs(v2 - v1) / v1) * tilt.vs * (kmag / (2 * k_vector[0])))**2 * (2 * k_vector[0]**2 / kmag**2)
 
 '''
@@ -78,9 +78,6 @@ Strain Field Scattering
 def V1_twiddle_sq_Delta(k_vector, kprime_vector):
     k = AS.k_mag(k_vector)
     q_vector = np.asarray(kprime_vector) - np.asarray(k_vector)
-    print(abs(helper.hbar * tilt.omega_kmag(k) * tilt.gruneisen * \
-               ((tilt.b * (1 - 2 * tilt.nu)) / (1 - tilt.nu)) * (q_vector[1]\
-               / (q_vector[0]**2 + q_vector[1]**2)))**2)
     return abs(helper.hbar * tilt.omega_kmag(k) * tilt.gruneisen * \
                ((tilt.b * (1 - 2 * tilt.nu)) / (1 - tilt.nu)) * (q_vector[1]\
                / (q_vector[0]**2 + q_vector[1]**2)))**2
@@ -96,13 +93,20 @@ def V1_twiddle_sq_S(k_vector, kprime_vector):
                
 
 def Gamma_GBS(k_vector, kprime_vectors):
+#    print([tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_Delta, tilt.ax), tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_S, tilt.ax)])
     return tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_Delta, tilt.ax) \
           + tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_S, tilt.ax)\
-          + tilt.GammaArray(k_vector, kprime_vectors, V_tilde_sq_R, tilt.ax)
+          + tilt.GammaArray_rot(k_vector, V_tilde_sq_R)
+
+def Gamma_GBS_rot_only(k_vector, kprime_yvectors, kprime_zvectors):
+    return tilt.GammaArray_rot(k_vector, V_tilde_sq_R)
 
 #Move to thermalTransport?
 def Gamma(k_vector):
-    return Gamma_GBS(k_vector, tilt.kprimes_y(k_vector)) * 1E-9 #what's this function for?
+    return Gamma_GBS(k_vector, tilt.kprimes_y(k_vector)) * 1E-9 
+
+def Gamma_rot_only(k_vector):
+    return Gamma_GBS_rot_only(k_vector, tilt.kprimes_y(k_vector), tilt.kprimes_z(k_vector)) * 1E-9
 
 def calculate_Gammas(n_k):
     dk = tilt.k_max / n_k
@@ -119,9 +123,9 @@ def calculate_Gammas(n_k):
 if __name__ == "__main__":
 #    Gamma_list = calculate_Gammas(200)
 #    SPlt.diffraction_plot(tilt, Gamma_list[0], Gamma_list[1])
-    SPlt.convergence_tau_plot(tilt, Gamma, 200, T = 300, save = True)
+    SPlt.convergence_tau_plot(tilt, Gamma_rot_only, 200, T = 300, save = True)
 #    spectral = TT.calculate_spectral_props(tilt, Gamma, prop_list = ['tau'],\
-#                                         n_angle = 300, n_k = 100, T = 300)
+ #                                        n_angle = 200, n_k = 50, T = 300)
 #    with open('spectral.json') as json_file:
 #        spectral = json.load(json_file)
 #    SPlt.spectral_plots(tilt, spectral, prop_list = ['tau'], save = True)
