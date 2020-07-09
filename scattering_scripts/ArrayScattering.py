@@ -254,11 +254,10 @@ class ArrayScattering:
             running_sum = running_sum + \
             V1_twiddle_sq(k_vector, kprime_vector) * (-qx * kx - qD * kD) * abs(kxprime) ** -1  
             i+=1
-        return (self.n_1D / (hbar ** 2 * self.D ** 2 * self.vg_kmag(k) * k)) * running_sum  #where is the dk??
+        return (self.n_1D / (hbar ** 2 * self.D ** 2 * self.vg_kmag(k) * k)) * running_sum  
     
     def GammaArray_rot(self, k_vector, V_twiddle_R):
         k = ArrayScattering.k_mag(k_vector)
-        #(2 * k_vector[0]**2 / k**2) #removed this.. may be treated in the tau itnegration..??
-        gamma = (self.n_1D / (hbar ** 2 * self.vs)) * V_twiddle_R(k_vector) #added a D^2...
+        gamma = (self.n_1D / (hbar ** 2 * self.vs)) * V_twiddle_R(k_vector)
         return gamma
     
