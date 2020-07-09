@@ -95,6 +95,9 @@ class AMMTransport():
         self.ch_obj.rotate_tensor(x_dir = [1.0, 0.0, 0.0], z_dir = [0.0, 0.0, 1.0])
         return vs1, vs2
     
+    '''
+    Specific Function for the (111) Twin boundary in FCC
+    '''
     def vs_rot_fcc(self, k_vector, rot_tensor_method, theta):
         self.ch_obj.rotate_tensor(x_dir = [1.0, 0.0, 0.0], z_dir = [1.0, 1.0, 1.0])
         k_norm = k_vector / h.k_mag(k_vector)
@@ -110,7 +113,10 @@ class AMMTransport():
         return vs1, vs2
 
         
-    
+    '''
+    Calculate velocity change with rotation and also performs Snell's law to get
+    Theta2 (direction of final phono nvector from Snell's Law)
+    '''
     def vs_rot_Snell(self, k_vector, rot_tensor_method, theta):
         k = h.k_mag(k_vector)
         v1, v2 = self.vs_rot(k_vector, h.rot_tensor_y, theta)
