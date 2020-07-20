@@ -156,13 +156,17 @@ class AMMTransport():
         for theta in theta_list:
             for phi in phi_list:
                 #this is giving you the circle of k points # conversion to sphereical coordinates for the integral
-                k_vector_int = [k * np.sin(theta - (d_angle / 2)) * np.cos(phi - (d_angle / 2)), \
-                                k * np.sin(theta - (d_angle / 2)) * np.sin(phi - (d_angle / 2)), \
-                                k * np.cos(theta - (d_angle / 2))]
+#                k_vector_int = [k * np.sin(theta - (d_angle / 2)) * np.cos(phi - (d_angle / 2)), \
+#                                k * np.sin(theta - (d_angle / 2)) * np.sin(phi - (d_angle / 2)), \
+#                                k * np.cos(theta - (d_angle / 2))]
+                k_vector_int = [k * np.cos(theta - (d_angle / 2)), \
+                            k * np.sin(theta - (d_angle / 2)) * np.cos(phi - (d_angle / 2)), \
+                            k * np.sin(theta - (d_angle / 2)) * np.sin(phi - (d_angle / 2))]                
                 a = self.AMM_transmissivity(k_vector_int, rotate_tensor_method, theta)
+                print(a)
                 running_integrand = running_integrand + \
-                (sin(theta - (d_angle / 2))**(2) * cos(phi - (d_angle / 2))) * a #Double check these powers? Shouldn't actually be squared?.. a forward scattering suprresion thing?
-        return running_integrand * d_angle**2
+                (sin(theta - (d_angle / 2))**(2) * cos(phi - (d_angle / 2))**2) * a #Double check these powers? Shouldn't actually be squared?.. a forward scattering suprresion thing?
+        return 8 * (3 / (4 * pi)) * running_integrand * d_angle**2
     
     def calculate_spectral_props(self, theta, rot_tensor_method, prop_list = ['transmissivity'],\
                                  function = {'transmissivity' : spectral_transmissivity},
@@ -215,11 +219,11 @@ if __name__ == "__main__":
     '''
     Silicon
     '''
-#    cmat = Si
-#    density = 2329
-#    N = 2
-#    atmV = 40.89E-30 / 2
-#    vs = 6084
+    cmat = Si
+    density = 2329
+    N = 2
+    atmV = 40.89E-30 / 2
+    vs = 6084
     '''
     InP
     '''
@@ -231,11 +235,11 @@ if __name__ == "__main__":
     '''
     Bi2Te3
     '''
-    cmat = Bi2Te3
-    density  = 7700
-    N = 5
-    atmV = 35.6E-30
-    vs = 1767
+#    cmat = Bi2Te3
+#    density  = 7700
+#    N = 5
+#    atmV = 35.6E-30
+#    vs = 1767
     '''
     Diamond
     '''

@@ -49,13 +49,13 @@ def tau_spectral(Gamma, gb : AS, k, n_angle, T):
                             k * np.sin(theta - (d_angle / 2)) * np.cos(phi - (d_angle / 2)), \
                             k * np.sin(theta - (d_angle / 2)) * np.sin(phi - (d_angle / 2))]
             running_integrand = running_integrand + \
-            ((np.sin(theta - (d_angle / 2)) * np.cos(theta - (d_angle / 2))**2) * Gamma(k_vector_int)) * d_angle**2
+            ((2 * np.sin(theta - (d_angle / 2)) * np.cos(theta - (d_angle / 2))**2) * Gamma(k_vector_int)) * d_angle**2 # Integrate over scattering rate: See https://hackingmaterials.lbl.gov/amset/scattering/
 #            tau_directional.append([theta, phi, Gamma(k_vector_int)**(-1)])
 #            i = i+1
 #            if i == 10:
 #                print(Gamma(k_vector_int))
 #                i = 0
-    return (8 * running_integrand * (3 / (4 * math.pi)))**(-1)
+    return (4 * (3 / (4 * math.pi)) * running_integrand)**(-1) # need to think about this more.. the cos**2 now probably has to be inverted..
     
 
 def transmissivity_spectral(Gamma, gb : AS, k, n_angle, T):        
@@ -85,7 +85,7 @@ def kL_spectral(Gamma, gb : AS, k, n_angle, T):
     tau = tau_spectral(Gamma, gb, k, n_angle, T) * 1E-9
 # "spectral heat capacity. There is no factors of group and phase velocity because it is in terms of k rather than omega.
     #print(Cv(k, T, omega_k))
-    kL = (1/3) * Cv(k,T, gb.omega_kmag(k))*vg**2*tau
+    kL = (1/3) * Cv(k,T, gb.omega_kmag(k))*vg**2*tau #because of 1/3.. can't I get rid of the kx/k term..? shouldn;t be there???
     return kL
     
 
