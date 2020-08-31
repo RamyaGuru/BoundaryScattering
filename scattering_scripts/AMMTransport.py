@@ -200,8 +200,28 @@ class AMMTransport():
         for k in k_mags:
             TBC = TBC + TT.Cv(k, T, vs * k) * dk
         return (1/4) * (alpha/(1-alpha)) * vs * TBC
+    
+class HetAMMTransport(AMMTransport):
+    def __init__(self, stiffness1, stiffness2, density1, density2, christoffel = True):
+        self.cmat1 = stiffness1
+        self.cmat2 = stiffness2
+        self.density1 = density1
+        self.density2 = density2
+        if christoffel:
+            self.ch_obj1 = Christoffel(stiffness1, density1)
+            self.ch_obj1.rotate_tensor(x_dir = [1.0, 0.0, 0.0], z_dir = [0.0, 0.0, 1.0])
+            self.ch_obj2 = Christoffel(stiffness2, density2)
+            self.ch_obj2.rotate_tensor(x_dir = [1.0, 0.0, 0.0], z_dir = [0.0, 0.0, 1.0])
         
-            
+    def delta_vs(self, k_vector):
+        k_norm = k_vector / h.k_mag(k_vector)
+        self.ch_obj1.set_direction_cartesian(k_norm)
+        vs1 = self.ch_obj1.get_group_velocity()
+        vs1 = h.average_group_velocity(vs1) #a
+        self.ch_obj2.set_direction_cartesian(k_norm)
+        vs2 = self.ch_obj2.get_group_velocity()
+        vs2 = h.average_group_velocity(vs2)
+        return vs1, vs2
                 
         
 if __name__ == "__main__":

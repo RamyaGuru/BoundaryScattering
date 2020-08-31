@@ -26,7 +26,7 @@ PROPERTIES: options for calculated properties including tranmissivity, thermal
 boundary conductance, and thermal conductivity
 ''' 
 #      
-def tau_spectral(Gamma, gb : AS, k, n_angle, T):
+def tau_spectral(Gamma, gb : AS, k, n_angle, T, directional = False):
     '''
     Calculates a spectral tau which can be applied to the
     single mode, isotropic Callaway model. This relaxation 
@@ -35,9 +35,9 @@ def tau_spectral(Gamma, gb : AS, k, n_angle, T):
     '''
     d_angle = (math.pi / 2) / n_angle
     running_integrand = 0
-    theta_list = np.arange(0, math.pi / 2 + d_angle, d_angle) # not including all incident angles? should check this
-    phi_list = np.arange(0, math.pi / 2 + d_angle, d_angle)
-#    tau_directional = []
+    theta_list = np.arange(0, math.pi + d_angle, d_angle) # not including all incident angles? should check this
+    phi_list = np.arange(0, math.pi + d_angle, d_angle)
+    tau_directional = []
 #    i = 0
     for theta in theta_list:
         for phi in phi_list:
@@ -50,12 +50,15 @@ def tau_spectral(Gamma, gb : AS, k, n_angle, T):
                             k * np.sin(theta - (d_angle / 2)) * np.sin(phi - (d_angle / 2))]
             running_integrand = running_integrand + \
             ((2 * np.sin(theta - (d_angle / 2)) * np.cos(theta - (d_angle / 2))**2) * Gamma(k_vector_int)) * d_angle**2 # Integrate over scattering rate: See https://hackingmaterials.lbl.gov/amset/scattering/
-#            tau_directional.append([theta, phi, Gamma(k_vector_int)**(-1)])
+            tau_directional.append([theta, phi, Gamma(k_vector_int)**(-1)])
 #            i = i+1
 #            if i == 10:
 #                print(Gamma(k_vector_int))
 #                i = 0
-    return (4 * (3 / (4 * math.pi)) * running_integrand)**(-1) # need to think about this more.. the cos**2 now probably has to be inverted..
+    if directional:
+        with open('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/' + str(gb.geom) + str(gb.theta) + 'oldtau_directional_2_lf.pkl', 'wb') as file:
+            pickle.dump(tau_directional, file)
+    return ((3 / (4 * math.pi)) * running_integrand)**(-1) # need to think about this more.. the cos**2 now probably has to be inverted..
     
 
 def transmissivity_spectral(Gamma, gb : AS, k, n_angle, T):        
