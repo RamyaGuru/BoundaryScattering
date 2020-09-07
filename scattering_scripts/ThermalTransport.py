@@ -166,8 +166,13 @@ def calculate_spectral_props(gb : AS, Gamma, prop_list = ['tau', 'transmissivity
         spectral['vg'].append(gb.vg_kmag(k))
         spectral['omega'].append(gb.omega_kmag(k))
         params['k'] = k
+        i = 0
         for prop in prop_list:
             spectral[prop].append(function[prop](**params))
+            if i == 10:
+                print(spectral[prop][-1])
+                i = 0
+            i = i+1
     return spectral
 
 def calculate_temperature_dependence(gb : AS, Gamma, temp_list, prop_list = ['TBC', 'kappa'],\

@@ -92,6 +92,6 @@ def spectral_plots(gb : AS, spectral : dict, prop_list = ['tau', 'transmissivity
         
 
         
-    
+
 
     

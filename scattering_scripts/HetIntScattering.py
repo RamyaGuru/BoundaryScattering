@@ -26,6 +26,7 @@ import numpy as np
 from math import asin, acos, pi, sin, cos, tan, atan
 import helper
 from AMMTransport import HetAMMTransport as HA
+import time
 
 np.seterr(divide='raise', invalid="raise")
 
@@ -149,8 +150,10 @@ def Gamma_rot(k_vector):
     return Gamma_GBS(k_vector, het.kprimes_y(k_vector), het.kprimes_z(k_vector)) * 1E-9
 
 if __name__ == '__main__':
-    SPlt.convergence_tau_plot(het, Gamma_rot, 600, T = 300, save = False)
-    
+    start = time.time()
+    SPlt.convergence_tau_plot(het, Gamma_rot, 110, T = 300, save = False)
+    stop = time.time()
+    print(stop - start)
 
 
 
