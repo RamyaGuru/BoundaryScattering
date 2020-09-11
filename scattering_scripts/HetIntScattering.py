@@ -64,6 +64,9 @@ Iniitalize ArrayScattering and AMMTransport Objects
 het = AS(**input_dict, geom = 'heterointerface', ax = {'n' : 1, 'm' : 2}, d_GS = 350E-9)
 amm = HA(cmat1, cmat2, density1, density2, christoffel = True)
 
+def initialize():
+    
+
 
 '''
 AMM Term
@@ -146,15 +149,19 @@ def Gamma_GBS(k_vector, kprime_yvectors, kprime_zvectors):
           ,het.GammaArray_rot(k_vector, V_tilde_amm)]
    return sum(tot)
 
+def Gamma_GBS_rot_only(k_vector, kprime_yvectors, kprime_zvectors):
+    return het.GammaArray_rot(k_vector, V_tilde_amm)
+
 def Gamma_rot(k_vector):
     return Gamma_GBS(k_vector, het.kprimes_y(k_vector), het.kprimes_z(k_vector)) * 1E-9
 
-if __name__ == '__main__':
-    start = time.time()
-    SPlt.convergence_tau_plot(het, Gamma_rot, 110, T = 300, save = False)
-    stop = time.time()
-    print(stop - start)
+def Gamma_rot_only(k_vector):
+    return Gamma_GBS_rot_only(k_vector, het.kprimes_y(k_vector), het.kprimes_z(k_vector)) * 1E-9
 
+if __name__ == '__main__':
+    SPlt.convergence_tau_plot(het, Gamma_rot_only, 110, T = 300, save = True)
+#    spectral = TT.calculate_spectral_props(het, Gamma_rot, prop_list = ['tau'],\
+#                                         n_angle = 100, n_k = 100, T = 300)    
 
 
 

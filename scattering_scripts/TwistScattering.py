@@ -67,13 +67,23 @@ input_dict = {'avg_vs': 6084,
              'gruneisen' : 1,
         }
 
+geom = 'theta'
+d_GS = 350E-09
+ax = {'n': 1, 'm' : 2}
+
+
 '''
 Initialize input dictionary with Materials Project
 '''
 #input_dict = helper.input_dict_from_MP('mp-149')
 
-twist = AS(**input_dict, geom = 'twist', theta = 5, ax = {'n' : 1, 'm' : 2}, d_GS = 350E-9)
-amm = AMMTransport(cmat, density, input_dict['atmV'][0], input_dict['N'])
+#twist = AS(**input_dict, geom = 'twist', theta = 5, ax = {'n' : 1, 'm' : 2}, d_GS = 350E-9)
+#amm = AMMTransport(cmat, density, input_dict['atmV'][0], input_dict['N'])
+
+def initialize(input_dict, cmat, density, theta, geom, ax = 1, d_GS = 350e-9):
+    amm = AMMTransport(cmat, density, input_dict['atmV'][0], input_dict['N'])
+    twist = AS(**input_dict, geom = geom, amm = amm, theta = theta, ax = ax, d_GS = d_GS)
+    return twist
 '''
 Rotation component:
 '''
@@ -93,7 +103,7 @@ Modify to do christoffel calculation
 Alternate rotation potentials (previous tries)
 '''    
 
-def V_twiddle_sq_R(k_vector):
+def V_twiddle_sq_R(twist, k_vector):
 #    k = AS.k_mag(k_vector)
 #    q_vector = np.asarray(kprime_vector)- np.asarray(k_vector)
 #    #calculate the angle of incidence, what about misorientation angle?
@@ -111,11 +121,11 @@ def V_twiddle_sq_R(k_vector):
     
 
 #Shouldn't the rotation be about x?
-def V_R_ch_snell(k_vector):
+def V_R_ch_snell(twist, k_vector):
     kmag = helper.k_mag(k_vector)
     knorm = k_vector / kmag
 #    theta1 = acos(k_vector[0]/kmag)
-    v1, v2, theta2 = amm.vs_rot_Snell(knorm, helper.rot_tensor_x, twist.theta)
+    v1, v2, theta2 = twist.amm.vs_rot_Snell(knorm, helper.rot_tensor_x, twist.theta)
 #    print([v1, v2])
 #    if math.isnan(theta2):
 #        qx = -2 * k_vector[0]
@@ -125,7 +135,8 @@ def V_R_ch_snell(k_vector):
 #        q_vector = [qx, (k_vector[1] / sin(theta1)) * sin(theta2) - k_vector[1], (k_vector[2] / sin(theta1)) * sin(theta2) - k_vector[2]]
 #    print(-1 * np.dot(q_vector, k_vector))
 #    print((v2 - v1) / v1)
-    return abs(helper.hbar * (abs(v2 - v1) / v1) * twist.vs * (kmag / (2 * k_vector[0])))**2 * (2 * k_vector[0]**2 / kmag**2)
+    return abs(helper.hbar * abs(v2 - v1) * abs(kmag / k_vector[0]))**2 * (2 * k_vector[0]**2 / kmag**2)    
+#    return abs(helper.hbar * (abs(v2 - v1) / v1) * twist.vs * (kmag / (2 * k_vector[0])))**2 * (2 * k_vector[0]**2 / kmag**2)
 #    return abs(helper.hbar * (abs(v2 - v1) / v1) * twist.vs)**2 * (2 * k_vector[0]**2 / kmag**2)
 #    return abs(helper.hbar * (abs(v2 - v1) / v1) * (twist.omega_kmag(kmag) / (2 * k_vector[0])))**2 * (2 * k_vector[0]**2 / kmag**2) #replaced qx by 1/ Burger's vector (width of delta function scattering potential)
 
@@ -134,74 +145,75 @@ def V_R_ch_snell(k_vector):
 Rotation Potential
 '''
 
-def V_tilde_sq_R(k_vector):
+def V_tilde_sq_R(twist, k_vector):
     kmag = helper.k_mag(k_vector)
     knorm = k_vector / kmag
-    v1, v2, theta2 = amm.vs_rot_Snell(knorm, helper.rot_tensor_x, twist.theta)
-    return abs(helper.hbar * (abs(v2 - v1) / v1) * twist.vs * (kmag / (2 * k_vector[0])))**2 * (2 * k_vector[0]**2 / kmag**2)
+    v1, v2, theta2 = twist.amm.vs_rot_Snell(knorm, helper.rot_tensor_x, twist.theta)
+    return abs(helper.hbar * abs(v2 - v1) * abs(kmag / k_vector[0]))**2 * (2 * k_vector[0]**2 / kmag**2)
+#    return abs(helper.hbar * (abs(v2 - v1) / v1) * twist.vs * (kmag / (2 * k_vector[0])))**2 * (2 * k_vector[0]**2 / kmag**2)
 
 '''
 Strain components of the "n" array: Dislocaiton line in z, spacing in y
 '''
 
-def Vn_twiddle_sq_E13(k_vector, kprime_vector):
+def Vn_twiddle_sq_E13(twist, k_vector, kprime_vector):
     k = AS.k_mag(k_vector)
     q_vector = np.asarray(kprime_vector) - np.asarray(k_vector)
     return abs(helper.hbar * twist.omega_kmag(k)* twist.gruneisen *(twist.b*q_vector[1])/(2* (q_vector[0]**2 + q_vector[1]**2)))**2
     
-def Vn_twiddle_sq_E23(k_vector, kprime_vector):
+def Vn_twiddle_sq_E23(twist, k_vector, kprime_vector):
     k = AS.k_mag(k_vector)
     q_vector = np.asarray(kprime_vector) - np.asarray(k_vector)
     return abs(helper.hbar * twist.omega_kmag(k) * twist.gruneisen * (twist.b * q_vector[0]/(2*(q_vector[0]**2 + q_vector[1]**2))))**2
 
-def V_twiddle_sq_n(k_vector, kprime_vector):
-    return Vn_twiddle_sq_E13(k_vector, kprime_vector) + Vn_twiddle_sq_E23(k_vector, kprime_vector)
+def V_twiddle_sq_n(twist, k_vector, kprime_vector):
+    return Vn_twiddle_sq_E13(twist, k_vector, kprime_vector) + Vn_twiddle_sq_E23(twist, k_vector, kprime_vector)
     
 
 '''
 Strain components of the "m" array: Dislocation line in y, spacing in z
 '''
-def Vm_twiddle_sq_E12(k_vector, kprime_vector):
+def Vm_twiddle_sq_E12(twist, k_vector, kprime_vector):
     k = AS.k_mag(k_vector)
     q_vector = np.asarray(kprime_vector) - np.asarray(k_vector)
     return abs(helper.hbar * twist.omega_kmag(k) * twist.gruneisen * (twist.b*q_vector[2])/(2* (q_vector[0]**2 + q_vector[2]**2)))**2
     
-def Vm_twiddle_sq_E23(k_vector, kprime_vector):
+def Vm_twiddle_sq_E23(twist, k_vector, kprime_vector):
     k = AS.k_mag(k_vector)
     q_vector = np.asarray(kprime_vector) - np.asarray(k_vector)
     return abs(helper.hbar * twist.omega_kmag(k) * twist.gruneisen *(twist.b*q_vector[0]/(2*(q_vector[0]**2 + q_vector[2]**2))))**2
 
-def V_twiddle_sq_m(k_vector, kprime_vector):
-    return Vm_twiddle_sq_E12(k_vector, kprime_vector) + Vm_twiddle_sq_E23(k_vector, kprime_vector)
+def V_twiddle_sq_m(twist, k_vector, kprime_vector):
+    return Vm_twiddle_sq_E12(twist, k_vector, kprime_vector) + Vm_twiddle_sq_E23(twist, k_vector, kprime_vector)
 
 '''
 STGB scattering rates
 '''
 #Still need to include the rotation term
-def Gamma_GBS(k_vector, kprime_yvectors, kprime_zvectors):
+def Gamma_GBS(twist, k_vector, kprime_yvectors, kprime_zvectors):
    return twist.GammaArray(k_vector, kprime_yvectors, V_twiddle_sq_n, twist.ax['n']) \
           + twist.GammaArray(k_vector, kprime_zvectors, V_twiddle_sq_m, twist.ax['m']) 
 
 
-def Gamma_GBS_rot(k_vector, kprime_yvectors, kprime_zvectors):
+def Gamma_GBS_rot(twist, k_vector, kprime_yvectors, kprime_zvectors):
    tot = [twist.GammaArray(k_vector, kprime_yvectors, V_twiddle_sq_n, twist.ax['n']) \
           ,twist.GammaArray(k_vector, kprime_zvectors, V_twiddle_sq_m, twist.ax['m']) \
           ,twist.GammaArray_rot(k_vector, V_tilde_sq_R)]
    return sum(tot)
 
-def Gamma_GBS_rot_only(k_vector, kprime_yvectors, kprime_zvectors):
+def Gamma_GBS_rot_only(twist, k_vector, kprime_yvectors, kprime_zvectors):
     return twist.GammaArray_rot(k_vector, V_tilde_sq_R) #twist.GammaArray_rot(k_vector, V_R_ch_snell)
           
-def Gamma(k_vector):
-    return Gamma_GBS(k_vector, twist.kprimes_y(k_vector), twist.kprimes_z(k_vector)) * 1E-9 
+def Gamma(twist, k_vector):
+    return Gamma_GBS(twist, k_vector, twist.kprimes_y(k_vector), twist.kprimes_z(k_vector)) * 1E-9 
 
-def Gamma_rot(k_vector):
-    return Gamma_GBS_rot(k_vector, twist.kprimes_y(k_vector), twist.kprimes_z(k_vector)) * 1E-9
+def Gamma_rot(twist, k_vector):
+    return Gamma_GBS_rot(twist, k_vector, twist.kprimes_y(k_vector), twist.kprimes_z(k_vector)) * 1E-9
 
-def Gamma_rot_only(k_vector):
-    return Gamma_GBS_rot_only(k_vector, twist.kprimes_y(k_vector), twist.kprimes_z(k_vector)) * 1E-9
+def Gamma_rot_only(twist, k_vector):
+    return Gamma_GBS_rot_only(twist, k_vector, twist.kprimes_y(k_vector), twist.kprimes_z(k_vector)) * 1E-9
 
-def calculate_Gammas(n_k):
+def calculate_Gammas(twist, n_k):
     dk = twist.k_max / n_k
     k_mags = np.arange(dk, twist.k_max, dk)
     k_norm = k_mags / twist.k_max
@@ -215,9 +227,10 @@ def calculate_Gammas(n_k):
 
 
 if __name__ == "__main__":
+    tilt = initialize(input_dict, cmat, density, theta, geom = 'twist', ax = 1, d_GS = 350e-9)
 #    Gamma_list = calculate_Gammas(200)
 #    SPlt.diffraction_plot(twist, Gamma_list[0], Gamma_list[1])
-    SPlt.convergence_tau_plot(twist, Gamma_rot_only, 600, T = 300, save = True)
+    SPlt.convergence_tau_plot(twist, Gamma_rot, 110, T = 300, save = True)
 #    spectral = TT.calculate_spectral_props(twist, Gamma_rot_only, prop_list = ['tau'],\
 #                                        n_angle = 200, n_k = 10, T = 300) #n_angle = 200, n_k = 100
 #    SPlt.spectral_plots(twist, spectral, prop_list = ['tau'], save = True)

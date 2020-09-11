@@ -30,7 +30,7 @@ class ArrayScattering:
        geom = ['twist', 'tilt', 'twin']
        Initialize an ArrayScattering object with the crystal and microstructure inputs
     '''
-    def __init__(self, avg_vs, atmV: list, N, d_GS, nu, theta = None, ax = None, geom = 'tilt', gruneisen = 1):
+    def __init__(self, avg_vs, atmV: list, N, d_GS, nu, theta = None, ax = None, geom = 'tilt', amm = None, gruneisen = 1):
        if geom not in ['twist', 'tilt', 'heterointerface', 'twin']:
            raise ValueError('GB geometry value not valid')
        self.theta = theta
@@ -45,6 +45,8 @@ class ArrayScattering:
        self.nu = nu
        self.omegaD = self.vs * self.k_max
        self.geom = geom
+       if amm:
+           self.amm = amm
        if geom == 'twist' or geom == 'tilt':
            self.theta = theta
            self.D = self.b / ( 2 * math.tan(theta * (math.pi/180) / 2))
@@ -252,12 +254,12 @@ class ArrayScattering:
             qx = kxprime - kx
             qD = kDprime - kD
             running_sum = running_sum + \
-            V1_twiddle_sq(k_vector, kprime_vector) * (-qx * kx - qD * kD) * abs(kxprime) ** -1  
+            V1_twiddle_sq(self, k_vector, kprime_vector) * (-qx * kx - qD * kD) * abs(kxprime) ** -1  
             i+=1
         return (self.n_1D / (hbar ** 2 * self.D ** 2 * self.vg_kmag(k) * k)) * running_sum  
     
     def GammaArray_rot(self, k_vector, V_twiddle_R):
         k = ArrayScattering.k_mag(k_vector)
-        gamma = (self.n_1D / (hbar ** 2 * self.vs)) * V_twiddle_R(k_vector)
+        gamma = (self.n_1D / (hbar ** 2 * self.vs)) * V_twiddle_R(self, k_vector)
         return gamma
     

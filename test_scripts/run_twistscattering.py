@@ -1,20 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Wed Aug 19 21:53:20 2020
+Created on Thu Sep 10 22:22:23 2020
 
 @author: ramyagurunathan
 
-
-Run the Tilt Boundary Scripts
+Twist Scattering Test
 """
 
-#Specify the tilt boundary angle as a command-line argument
-'''
-Input dict
-'''
+import sys
+sys.path.append('../scattering_scripts/')
 
-import TiltScattering_update as TS
+import TwistScattering as TS
 import ThermalTransport as TT
 import ScatteringPlots as SPlt
 import numpy as np
@@ -33,10 +30,12 @@ density = 2330
 
 theta = 5
 
-geom = 'tilt'
+geom = 'twist'
 
-tilt, amm = TS.initialize(input_dict, cmat, density, theta, geom)
+ax = {'n': 1, 'm' : 2}
 
-SPlt.convergence_tau_plot(tilt, TS.Gamma, 110, T = 300)
+d_GS = 350E-09
 
+twist = TS.initialize(input_dict, cmat, density, theta, geom, ax = ax, d_GS = d_GS)
 
+SPlt.convergence_tau_plot(twist, TS.Gamma_rot, 110, T = 300)

@@ -86,12 +86,8 @@ def spectral_plots(gb : AS, spectral : dict, prop_list = ['tau', 'transmissivity
         plt.ylabel(labels[prop], fontsize=16)
         plt.plot([ f / gb.vs for f in spectral['omega']], spectral[prop])
         if save: 
-            np.save(str(gb.geom) + str(gb.theta) + 'spectral_update' + prop + '.npy', np.array([spectral['omega'], spectral[prop]]))
             plt.savefig(str(gb.geom) + str(gb.theta) + 'spectral_update' + prop + '.pdf' ,\
                         dpi=400, bbox_inches = 'tight')
-        
-
-        
 
 
     

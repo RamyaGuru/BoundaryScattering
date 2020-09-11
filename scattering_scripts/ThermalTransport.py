@@ -49,14 +49,14 @@ def tau_spectral(Gamma, gb : AS, k, n_angle, T, directional = False):
                             k * np.sin(theta - (d_angle / 2)) * np.cos(phi - (d_angle / 2)), \
                             k * np.sin(theta - (d_angle / 2)) * np.sin(phi - (d_angle / 2))]
             running_integrand = running_integrand + \
-            ((2 * np.sin(theta - (d_angle / 2)) * np.cos(theta - (d_angle / 2))**2) * Gamma(k_vector_int)) * d_angle**2 # Integrate over scattering rate: See https://hackingmaterials.lbl.gov/amset/scattering/
-            tau_directional.append([theta, phi, Gamma(k_vector_int)**(-1)])
+            ((2 * np.sin(theta - (d_angle / 2)) * np.cos(theta - (d_angle / 2))**2) * Gamma(gb, k_vector_int)) * d_angle**2 # Integrate over scattering rate: See https://hackingmaterials.lbl.gov/amset/scattering/
+            tau_directional.append([theta, phi, Gamma(gb, k_vector_int)**(-1)])
 #            i = i+1
 #            if i == 10:
 #                print(Gamma(k_vector_int))
 #                i = 0
     if directional:
-        with open('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/' + str(gb.geom) + str(gb.theta) + 'oldtau_directional_2_lf.pkl', 'wb') as file:
+        with open('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/' + str(gb.geom) + str(gb.theta) + 'oldtau_directional_2_hf.pkl', 'wb') as file:
             pickle.dump(tau_directional, file)
     return ((3 / (4 * math.pi)) * running_integrand)**(-1) # need to think about this more.. the cos**2 now probably has to be inverted..
     
@@ -137,7 +137,7 @@ def tbc_T(Gamma, gb : AS, n_k, n_angle, T):
 def calculate_spectral_props(gb : AS, Gamma, prop_list = ['tau', 'transmissivity', 'TBC', 'kappa'],\
                              function = {'tau' : tau_spectral, 'transmissivity' : transmissivity_spectral,
                 'TBC' : tbc_spectral, 'kappa' : kL_spectral},
-                             n_angle = 100, n_k = 100, T = 300):
+                             n_angle = 100, n_k = 100, T = 300, save = False):
     '''
     Calculate spectral properties
     prop_list : spectral properties which should be calculated
@@ -173,6 +173,9 @@ def calculate_spectral_props(gb : AS, Gamma, prop_list = ['tau', 'transmissivity
                 print(spectral[prop][-1])
                 i = 0
             i = i+1
+    if save:
+        prop = 'tau'
+        np.save(str(gb.geom) + str(gb.theta) + 'spectral_update' + prop + '.npy', np.array([spectral['omega'], spectral[prop]]))
     return spectral
 
 def calculate_temperature_dependence(gb : AS, Gamma, temp_list, prop_list = ['TBC', 'kappa'],\

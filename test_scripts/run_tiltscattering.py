@@ -13,6 +13,8 @@ Run the Tilt Boundary Scripts
 '''
 Input dict
 '''
+import sys
+sys.path.append('../scattering_scripts/')
 
 import TiltScattering_update as TS
 import ThermalTransport as TT
@@ -35,7 +37,7 @@ theta = 5
 
 geom = 'tilt'
 
-tilt, amm = TS.initialize(input_dict, cmat, density, theta, geom)
+tilt = TS.initialize(input_dict, cmat, density, theta, geom)
 
 SPlt.convergence_tau_plot(tilt, TS.Gamma, 110, T = 300)
 
