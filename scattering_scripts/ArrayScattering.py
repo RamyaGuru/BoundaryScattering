@@ -94,6 +94,12 @@ class ArrayScattering:
         return self.vs
     
     '''
+    Read Shockley Grain Boundary Energy
+    '''
+#    def gb_energy(self):
+        
+    
+    '''
     Scattering Functions
     ''' 
     def qm(self, m):
