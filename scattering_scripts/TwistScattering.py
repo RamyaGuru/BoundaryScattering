@@ -63,6 +63,7 @@ Input dict
 input_dict = {'avg_vs': 6084,
              'atmV': [2E-29],
              'N': 2,
+             'bulkmod' : 97.83,
              'nu' : 0.29,
              'gruneisen' : 1,
         }

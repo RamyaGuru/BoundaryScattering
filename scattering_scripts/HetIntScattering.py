@@ -39,6 +39,7 @@ input_dict = {
         'avg_vs': (6084 + 5400) / 2, #currently using average velocity between material 1 and material 2
              'atmV': [1.97E-29, 2.27E-29],
              'N': 2,
+             'bulkmod' : 97.83,
              'nu' : 0.29,
              'gruneisen' : 1,
         }

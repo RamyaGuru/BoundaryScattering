@@ -30,7 +30,7 @@ class ArrayScattering:
        geom = ['twist', 'tilt', 'twin']
        Initialize an ArrayScattering object with the crystal and microstructure inputs
     '''
-    def __init__(self, avg_vs, atmV: list, N, d_GS, nu, theta = None, ax = None, geom = 'tilt', amm = None, gruneisen = 1):
+    def __init__(self, avg_vs, atmV: list, N, d_GS, bulkmod, nu, theta = None, ax = None, geom = 'tilt', amm = None, gruneisen = 1):
        if geom not in ['twist', 'tilt', 'heterointerface', 'twin']:
            raise ValueError('GB geometry value not valid')
        self.theta = theta
@@ -42,6 +42,7 @@ class ArrayScattering:
        self.gruneisen = gruneisen
        self.b = (self.V * self.N) ** (1 / 3) 
        self.k_max = (6 * math.pi**2 / (self.V * self.N))**(1 / 3)
+       self.bulkmod = bulkmod
        self.nu = nu
        self.omegaD = self.vs * self.k_max
        self.geom = geom
@@ -96,7 +97,11 @@ class ArrayScattering:
     '''
     Read Shockley Grain Boundary Energy
     '''
-#    def gb_energy(self):
+    def gb_energy(self):
+        theta = self.theta * (math.pi / 180)
+        RS_energy = self.bulkmod * self.b / (4 * math.pi * (1 - self.nu)) *\
+        theta * (1 + math.log(1 / (2 * math.pi)) - math.log(theta))
+        return RS_energy
         
     
     '''
@@ -170,7 +175,10 @@ class ArrayScattering:
         # Add back-scattering, sign=-1 and m=0. Omit forward scattering
         # sign = 1 and m=0 or (k_vector=kprime_vector) as this causes a
         # 0/0 indeterminate in the V1_twiddle_sqs.
-        kprime_list.append([-kx, ky, kz])
+        #Omit this term for the twist boundary and heterointerface, as these terms
+        #are taken care of in a separate AMM term
+        if self.geom == 'tilt':
+            kprime_list.append([-kx, ky, kz])
         for m in m_values:
             for sign in [-1, 1]:
                 kprime_list.append([self.kxprime_msigma(kx, ky, m, sign), ky - self.qm(m), kz])
@@ -208,13 +216,14 @@ class ArrayScattering:
         # Add back-scattering, sign=-1 and m=0. Omit forward scattering
         # sign = 1 and m=0 or (k_vector=kprime_vector) as this causes a
         # 0/0 indeterminate in the V1_twiddle_sqs.
-        kprime_list.append([-kx, ky, kz])
+        if self.geom == 'tilt':
+            kprime_list.append([-kx, ky, kz])
         for m in m_values:
             for sign in [-1, 1]:
                 kprime_list.append([self.kxprime_msigma(kx, kz, m, sign), ky, kz-self.qm(m)])
-    
         return kprime_list
     
+
     def kprimes_plot(self, k_vector):
         '''
         Input:

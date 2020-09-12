@@ -32,3 +32,9 @@ plt.plot(tilt1_tau[0,:], tilt1_tau[1,:])
 plt.figure()
 tilt10_tau = np.load('../datafiles/fall2020/tilt10spectral_updatetau.npy')
 plt.plot(tilt10_tau[0,:], tilt10_tau[1,:])
+
+
+#Tilt 8 Boundary Results
+plt.figure()
+tilt8_tau = np.load('../datafiles/fall2020/tilt10spectral_updatetau.npy')
+plt.plot(tilt8_tau[0,:], tilt8_tau[1,:])
