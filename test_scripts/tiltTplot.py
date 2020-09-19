@@ -39,6 +39,7 @@ Load relaxation times
 '''
 
 tilt1 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020/tilt1spectral_updatetau.npy')
+tilt2 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020/tilt2spectral_updatetau.npy')
 tilt5 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020/tilt5spectral_updatetau.npy')
 tilt8 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020/tilt8spectral_updatetau.npy')
 tilt10 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020/tilt10spectral_updatetau.npy')
@@ -48,8 +49,8 @@ tilt15 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScatterin
 Calculate transport coefficients
 '''
 
-color = ['xkcd:black', 'xkcd:plum', 'xkcd:blood red', 'xkcd:dark salmon']
-labels = [r'15$^{\circ}$', r'10$^{\circ}$', r'5$^{\circ}$', r'1$^{\circ}$']
+color = ['xkcd:black', 'xkcd:plum', 'xkcd:blood red', 'xkcd:dark salmon', 'xkcd:silver']
+labels = [r'15$^{\circ}$', r'10$^{\circ}$', r'5$^{\circ}$', r'2$^{\circ}$', r'1$^{\circ}$']
 
 input_dict = {'avg_vs': 6084,
              'atmV': [2E-29],
@@ -62,6 +63,7 @@ input_dict = {'avg_vs': 6084,
 tilt = AS(**input_dict, geom = 'tilt', theta = 5, ax = 1, d_GS = 350E-9)
 
 tbc1 = []
+tbc2 = []
 tbc5 = []
 tbc8 = []
 tbc10 = []
@@ -69,18 +71,20 @@ tbc15 = []
 
 for T in [100, 150, 200, 300]:
     transport1 = TT.transport_coeffs_from_tau(tilt, tilt1[0] / tilt.vs, tilt1[1], T)
+    transport2 = TT.transport_coeffs_from_tau(tilt, tilt2[0] / tilt.vs, tilt2[1], T)
     transport5 = TT.transport_coeffs_from_tau(tilt, tilt5[0] / tilt.vs, tilt5[1], T)
     transport8 = TT.transport_coeffs_from_tau(tilt, tilt8[0] / tilt.vs, tilt8[1], T)
     transport10 = TT.transport_coeffs_from_tau(tilt, tilt10[0] / tilt.vs, tilt10[1], T)
     transport15 = TT.transport_coeffs_from_tau(tilt, tilt15[0] / tilt.vs, tilt15[1], T)
     tbc1.append((1 / transport1['TBC']) * 1E9)
+    tbc2.append((1 / transport2['TBC']) * 1E9)
     tbc5.append((1 / transport5['TBC']) * 1E9)
     tbc8.append((1 / transport8['TBC']) * 1E9)
     tbc10.append((1 / transport10['TBC']) * 1E9)
     tbc15.append((1 / transport15['TBC']) * 1E9)
 plt.figure()  
 i = 0
-for tbc in [tbc15, tbc10, tbc5, tbc1]:
+for tbc in [tbc15, tbc10, tbc5, tbc2, tbc1]:
     plt.plot([100, 150, 200, 300], tbc, '-o', color = color[i], label = labels[i])
     i = i+1
 
@@ -94,9 +98,9 @@ plt.savefig('TBC_comp_tilt_update.pdf', bbox_inches = 'tight')
 Plot the Read Shockley Energy versus the interfacial thermal resistance
 '''
 
-tbc_list = [tbc1[-1], tbc5[-1], tbc8[-1], tbc10[-1]]
+tbc_list = [tbc1[-1], tbc2[-1], tbc5[-1], tbc8[-1], tbc10[-1]]
 
-theta = [1,5,8,10]
+theta = [1,2,5,8,10]
 
 GBenergy = []
 

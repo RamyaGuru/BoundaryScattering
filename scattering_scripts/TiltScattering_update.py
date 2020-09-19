@@ -38,7 +38,7 @@ cmat = np.array([[165.6, 63.9, 63.9, 0, 0, 0],[63.9, 165.6, 63.9, 0, 0, 0],[63.9
 density = 2330
 
 geom = 'tilt'
-theta = 2
+theta = 5
 
 '''
 Initialize input dictionary with Materials Project
@@ -113,6 +113,7 @@ def Gamma_GBS(tilt, k_vector, kprime_vectors):
     return tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_Delta, tilt.ax) \
           + tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_S, tilt.ax)\
           + tilt.GammaArray_rot(k_vector, V_tilde_sq_R)
+          
 
 def Gamma_GBS_rot_only(tilt, k_vector, kprime_yvectors, kprime_zvectors):
     return tilt.GammaArray_rot(k_vector, V_tilde_sq_R)

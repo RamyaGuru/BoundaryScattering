@@ -68,7 +68,7 @@ input_dict = {'avg_vs': 6084,
              'gruneisen' : 1,
         }
 
-geom = 'theta'
+geom = 'twist'
 d_GS = 350E-09
 ax = {'n': 1, 'm' : 2}
 
@@ -152,6 +152,26 @@ def V_tilde_sq_R(twist, k_vector):
     v1, v2, theta2 = twist.amm.vs_rot_Snell(knorm, helper.rot_tensor_x, twist.theta)
     return abs(helper.hbar * abs(v2 - v1) * abs(kmag / k_vector[0]))**2 * (2 * k_vector[0]**2 / kmag**2)
 #    return abs(helper.hbar * (abs(v2 - v1) / v1) * twist.vs * (kmag / (2 * k_vector[0])))**2 * (2 * k_vector[0]**2 / kmag**2)
+    
+'''
+1950's Rotation Term
+'''
+
+def Gamma_AMM(twist, k_vector):
+    kmag = helper.k_mag(k_vector)
+    knorm = k_vector / kmag
+    theta1 = acos(k_vector[0]/kmag)
+    v1, v2, theta2 = twist.amm.vs_rot_Snell(knorm, helper.rot_tensor_x, twist.theta)
+    if math.isnan(theta2):
+        print('here')
+        a = 1E-10
+    else:
+        a = (4 * (v2 / v1) * (cos(theta2) / cos(theta1))) / ((v2/v1) + cos(theta2) / cos(theta1))**2
+#            a = (4*v1*v2*cos(theta1)*cos(theta2))/((v1*cos(theta1)\
+#                            + v2*cos(theta2))**2)
+    tau = (3/4) * a / ((1-a) * twist.vs * twist.n_1D)
+    print(a)
+    return tau**(-1) * 1E-9
 
 '''
 Strain components of the "n" array: Dislocaiton line in z, spacing in y
@@ -228,10 +248,11 @@ def calculate_Gammas(twist, n_k):
 
 
 if __name__ == "__main__":
-    tilt = initialize(input_dict, cmat, density, theta, geom = 'twist', ax = 1, d_GS = 350e-9)
+    theta = 5
+    twist = initialize(input_dict, cmat, density, theta, geom = 'twist', ax = ax, d_GS = d_GS)
 #    Gamma_list = calculate_Gammas(200)
 #    SPlt.diffraction_plot(twist, Gamma_list[0], Gamma_list[1])
-    SPlt.convergence_tau_plot(twist, Gamma_rot, 110, T = 300, save = True)
+    SPlt.convergence_tau_plot(twist, Gamma_rot, 110, T = 300)
 #    spectral = TT.calculate_spectral_props(twist, Gamma_rot_only, prop_list = ['tau'],\
 #                                        n_angle = 200, n_k = 10, T = 300) #n_angle = 200, n_k = 100
 #    SPlt.spectral_plots(twist, spectral, prop_list = ['tau'], save = True)

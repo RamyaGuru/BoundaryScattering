@@ -98,6 +98,7 @@ class ArrayScattering:
     Read Shockley Grain Boundary Energy
     '''
     def gb_energy(self):
+        #using value of 0.23 for A like in Al2O3 paper..?
         theta = self.theta * (math.pi / 180)
         RS_energy = self.bulkmod * self.b / (4 * math.pi * (1 - self.nu)) *\
         theta * (1 + math.log(1 / (2 * math.pi)) - math.log(theta))
@@ -177,7 +178,7 @@ class ArrayScattering:
         # 0/0 indeterminate in the V1_twiddle_sqs.
         #Omit this term for the twist boundary and heterointerface, as these terms
         #are taken care of in a separate AMM term
-        if self.geom == 'tilt':
+        if self.geom == 'tiltyyyy':
             kprime_list.append([-kx, ky, kz])
         for m in m_values:
             for sign in [-1, 1]:

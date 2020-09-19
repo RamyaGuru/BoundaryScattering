@@ -61,11 +61,12 @@ def directional_tau_plots(tau_list: list, n_angle, save = None):
         WW[i,:] = 1/tau_list[start:stop, 2]
 #    print(np.amin(WW))
 #    WW = WW / np.amax(WW)
-    norm = norm = cm.colors.Normalize(vmax=6, vmin=1)
+    norm = norm = cm.colors.Normalize(vmax=5, vmin=1)
     scamap = plt.cm.ScalarMappable(norm = norm, cmap = 'plasma')
     fcolors = scamap.to_rgba(WW)
     ax.plot_surface(XX, YY, ZZ, cstride = 1, rstride = 1, facecolors = fcolors, cmap = 'plasma')
-    fig.colorbar(scamap, ax = ax, pad = -0.04, shrink = 0.6)
+    cbar = fig.colorbar(scamap, ax = ax, pad = -0.04, shrink = 0.5)
+    cbar.set_label(r'$\tau^{-1} (GHz)$', size = 14)
     ax.view_init(azim = 80, elev = 10)
     ax.set_xticklabels([])
     ax.set_yticklabels([])
@@ -75,4 +76,4 @@ def directional_tau_plots(tau_list: list, n_angle, save = None):
     if save:
         plt.savefig(save + '.pdf', bbox_inches = 'tight')
     
-directional_tau_plots(tau, int((len(tau))**(1/2)), save = 'twist5_directional2_hf')
+directional_tau_plots(tau, int((len(tau))**(1/2)), save = 'twist5_directional_hf')

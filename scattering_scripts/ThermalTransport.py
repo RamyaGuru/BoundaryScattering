@@ -33,10 +33,10 @@ def tau_spectral(Gamma, gb : AS, k, n_angle, T, directional = False):
     time is for kappa_xx.
      
     '''
-    d_angle = (math.pi / 2) / n_angle
+    d_angle = (math.pi / 4) / n_angle #something wrong here?
     running_integrand = 0
-    theta_list = np.arange(0, math.pi + d_angle, d_angle) # not including all incident angles? should check this
-    phi_list = np.arange(0, math.pi + d_angle, d_angle)
+    theta_list = np.arange(0, math.pi/2 + d_angle, d_angle) # not including all incident angles? should check this
+    phi_list = np.arange(0, math.pi/2 + d_angle, d_angle)
     tau_directional = []
 #    i = 0
     for theta in theta_list:
@@ -58,7 +58,7 @@ def tau_spectral(Gamma, gb : AS, k, n_angle, T, directional = False):
     if directional:
         with open('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/' + str(gb.geom) + str(gb.theta) + 'oldtau_directional_2_hf.pkl', 'wb') as file:
             pickle.dump(tau_directional, file)
-    return ((3 / (4 * math.pi)) * running_integrand)**(-1) # need to think about this more.. the cos**2 now probably has to be inverted..
+    return (8 * (3 / (4 * math.pi)) * running_integrand)**(-1) # need to think about this more.. the cos**2 now probably has to be inverted..
     
 
 def transmissivity_spectral(Gamma, gb : AS, k, n_angle, T):        
@@ -115,6 +115,16 @@ def tbc_spectral(Gamma, gb : AS, k, n_angle, T):
     tbc = (a / (1 - a))*vg*Cv(k, T, gb.omega_kmag(k))
     return (1/4)*tbc
 
+def tbc_spectral_old(Gamma, gb : AS, k, n_angle, T):
+    '''
+    Calculate the spectral thermal boundary conductance
+    '''
+    vg = gb.vg_kmag(k)
+    a = transmissivity_spectral(Gamma, gb, k, n_angle, T)
+    print(Cv(k, T, gb.omega_kmag(k)))
+    tbc = a*vg*Cv(k, T, gb.omega_kmag(k))
+    return (1/4)*tbc
+
 def tbc_from_alpha(alpha, gb : AS, k, T):
     vg = gb.vg_kmag(k)
     return (1/4) *  (alpha / (1-alpha)) * vg * Cv(k, T, gb.omega_kmag(k))
@@ -131,6 +141,18 @@ def tbc_T(Gamma, gb : AS, n_k, n_angle, T):
         a = transmissivity_spectral(Gamma, gb, k, n_angle, T)
         tbc_int = tbc_int + (a / (1 - a))*vg*Cv(k,T, gb.omega_kmag(k))*dk
     return (1/4)*tbc_int
+
+def tbc_T_old(Gamma, gb : AS, n_k, n_angle, T):
+    '''
+    TBC versus T
+    '''
+    dk = gb.k_max/n_k
+    tbc_int = 0
+    for k in np.arange(dk, gb.k_max, dk):
+        vg = gb.vg_kmag(k)
+        a = transmissivity_spectral(Gamma, gb, k, n_angle, T)
+        tbc_int = tbc_int + a*vg*Cv(k,T, gb.omega_kmag(k))*dk
+    return (1/4)*tbc_int    
 
 
 
@@ -214,7 +236,8 @@ def transport_coeffs_from_tau(gb : AS, k_list, tau_spectral, T, save = False):
         kappa = kappa + Cv_s * vg**2 * tau * 1E-9 * dk
         a = (vg * tau * 1E-9 * gb.n_1D) / ((3/4) + (vg * tau * 1E-9 * gb.n_1D))
         alpha.append(a)
-        TBC = TBC + (a / (1 - a)) * vg * Cv_s * dk
+        TBC = TBC + a * vg * Cv_s * dk
+#        TBC = TBC + (a / (1 - a)) * vg * Cv_s * dk
     transport = {'kappa': kappa / 3, 'TBC' : TBC / 4, 'spectral_alpha': alpha}
     if save:
         np.savez('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/' +\

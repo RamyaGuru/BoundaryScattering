@@ -144,7 +144,6 @@ class AMMTransport():
             a = 0
         return a
     
-#    def AMM_transmissivity_fcc(self, ):
         
         
     

@@ -39,4 +39,7 @@ d_GS = 350E-09
 
 twist = TS.initialize(input_dict, cmat, density, theta, geom, ax = ax, d_GS = d_GS)
 
-SPlt.convergence_tau_plot(twist, TS.Gamma_rot, 110, T = 300)
+#SPlt.convergence_tau_plot(twist, TS.Gamma_rot, 110, T = 300)
+
+spectral = TT.calculate_spectral_props(twist, TS.Gamma_rot, prop_list = ['tau'],\
+                                        n_angle = 10, n_k = 5, T = 300, save = True)

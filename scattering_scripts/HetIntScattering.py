@@ -85,6 +85,8 @@ def V_tilde_amm(het, k_vector):
     v1, v2 = het.amm.delta_vs(knorm)
     return abs(helper.hbar * abs(v2 - v1) * abs(kmag / k_vector[0]))**2 * (2 * k_vector[0]**2 / kmag**2)
 
+    
+    
 
 '''
 Strain Scattering Functions
@@ -156,6 +158,11 @@ def Gamma_GBS(het, k_vector, kprime_yvectors, kprime_zvectors):
           ,het.GammaArray_rot(k_vector, V_tilde_amm)]
    return sum(tot)
 
+def Gamma_GBS_no_rot(het, k_vector, kprime_yvectors, kprime_zvectors):
+    tot = [het.GammaArray(k_vector, kprime_yvectors, V_twiddle_n, het.ax['n']) \
+          ,het.GammaArray(k_vector, kprime_zvectors, V_twiddle_m, het.ax['m'])]
+    return sum(tot)
+
 def Gamma_GBS_rot_only(het, k_vector, kprime_yvectors, kprime_zvectors):
     return het.GammaArray_rot(k_vector, V_tilde_amm)
 
@@ -165,10 +172,13 @@ def Gamma_rot(het, k_vector):
 def Gamma_rot_only(het, k_vector):
     return Gamma_GBS_rot_only(het, k_vector, het.kprimes_y(k_vector), het.kprimes_z(k_vector)) * 1E-9
 
+def Gamma_no_rot(het, k_vector):
+    return Gamma_GBS_no_rot(het, k_vector, het.kprimes_y(k_vector), het.kprimes_z(k_vector)) * 1E-9
+
 if __name__ == '__main__':
     het = initialize(input_dict, cmat = [cmat1, cmat2], density = [density1, density2],\
                      geom = geom)
-    SPlt.convergence_tau_plot(het, Gamma_rot_only, 110, T = 300, save = True)
+    SPlt.convergence_tau_plot(het, Gamma_rot, 110, T = 300)
 #    spectral = TT.calculate_spectral_props(het, Gamma_rot, prop_list = ['tau'],\
 #                                         n_angle = 100, n_k = 100, T = 300)    
 
