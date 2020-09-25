@@ -14,6 +14,7 @@ from math import exp, sin, cos, tan, log
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib as mpl
+from mpl_toolkits.mplot3d.axes3d import Axes3D
 
 mpl.rcdefaults()
 mpl.rcParams['font.sans-serif'] = 'Apple Symbols'
@@ -22,7 +23,7 @@ mpl.rcParams['lines.linewidth'] = 3
 mpl.rcParams['axes.xmargin'] = 0.1
 mpl.rcParams['axes.formatter.useoffset'] = False
 mpl.rcParams['font.weight'] = 'bold'
-mpl.rcParams['font.size'] = '22'
+mpl.rcParams['font.size'] = '16'
 mpl.rcParams['text.usetex'] = True
 
 mpl.rcParams['mathtext.fontset'] = 'custom'
@@ -121,7 +122,7 @@ xlim = 1
 zlim = 1
 xstrain = 1
 zstrain = 1
-nelem = 400
+nelem = 1000
 x = np.linspace(xlim* -1e-8,xlim*1e-8,nelem)
 z = np.linspace(zlim *-1e-8,zlim* 1e-8,nelem)
 Xax, Zax = np.meshgrid(x,z)
@@ -142,24 +143,24 @@ strainzx = np.zeros([0, nelem])
 for s in [-1,1]:
     z_2 = np.sort(np.linspace(0, zlim*s*1e-8, nelem/2))
     for zet in z_2: #Note: z is the row label and x is the column label
-        sigmaxx_zet = sigxx(x,zet,s)
-        sigmazx_zet = sigzx(x, zet,s)
-        sigmazz_zet = sigzz(x,zet,s)
+#        sigmaxx_zet = sigxx(x,zet,s)
+#        sigmazx_zet = sigzx(x, zet,s)
+#        sigmazz_zet = sigzz(x,zet,s)
         strainxx_zet = exx(x, zet, s)
-        strainzz_zet = ezz(x,zet,s)
-        strainzx_zet = ezx(x,zet,s)
-        sigmaxx_zet = np.transpose(sigmaxx_zet.reshape(nelem,1))
-        sigmazx_zet = np.transpose(sigmaxx_zet.reshape(nelem,1))
-        sigmazz_zet = np.transpose(sigmaxx_zet.reshape(nelem,1))
+#        strainzz_zet = ezz(x,zet,s)
+#        strainzx_zet = ezx(x,zet,s)
+#        sigmaxx_zet = np.transpose(sigmaxx_zet.reshape(nelem,1))
+#        sigmazx_zet = np.transpose(sigmaxx_zet.reshape(nelem,1))
+#        sigmazz_zet = np.transpose(sigmaxx_zet.reshape(nelem,1))
         strainxx_zet = np.transpose(strainxx_zet.reshape(nelem, 1))
-        strainzz_zet = np.transpose(strainzz_zet.reshape(nelem, 1))
-        strainzx_zet = np.transpose(strainzx_zet.reshape(nelem, 1))
-        sigmaxx = np.append(sigmaxx,sigmaxx_zet, axis = 0)
-        sigmazx = np.append(sigmazx, sigmazx_zet, axis = 0)
-        sigmazz = np.append(sigmazz, sigmazz_zet, axis = 0)
+#        strainzz_zet = np.transpose(strainzz_zet.reshape(nelem, 1))
+#        strainzx_zet = np.transpose(strainzx_zet.reshape(nelem, 1))
+#        sigmaxx = np.append(sigmaxx,sigmaxx_zet, axis = 0)
+#        sigmazx = np.append(sigmazx, sigmazx_zet, axis = 0)
+#        sigmazz = np.append(sigmazz, sigmazz_zet, axis = 0)
         strainxx = np.append(strainxx, strainxx_zet, axis = 0)
-        strainzz = np.append(strainzz, strainzz_zet, axis = 0)
-        strainzx = np.append(strainzx, strainzx_zet, axis = 0)
+#        strainzz = np.append(strainzz, strainzz_zet, axis = 0)
+#        strainzx = np.append(strainzx, strainzx_zet, axis = 0)
 #plt.figure()
 ##v = np.linspace(-1e9, 1e9, 1000, endpoint=True)
 #plt.pcolormesh(Xax*1e9, Zax*1e9, sigmaxx, vmin = -5e10, vmax = 5e10, cmap = "Greys")
@@ -182,59 +183,72 @@ for s in [-1,1]:
 #plt.xlabel('x (nm)')
 #plt.ylabel('z')
 #plt.title(r'$\sigma_{zz}$')
-plt.figure()
-plt.pcolormesh(Xax*1e9, Zax*1e9, strainxx, vmin = -.27, vmax = 0.27, cmap = "Greys")
-plt.ylim([-1, 1])
-plt.xlabel('x (nm)')
-plt.ylabel('z (nm)')
-plt.title(r'$\epsilon_{xx}$')
-plt.colorbar()
-plt.savefig('exx_hetero.pdf', bbox_inches = 'tight')
-plt.figure()
-plt.pcolormesh(Xax*1e9, Zax*1e9, strainzz, vmin = -.27, vmax = 0.27, cmap = "Greys")
-plt.ylim([-1, 1])
-plt.xlabel('x (nm)')
-plt.ylabel('z (nm)')
-plt.title(r'$\epsilon_{zz}$')
-plt.colorbar()
-plt.savefig('ezz_hetero.pdf', bbox_inches = 'tight')
-plt.figure()
-plt.pcolormesh(Xax*1e9, Zax*1e9, strainzx, vmin = -.27, vmax = 0.27, cmap = "Greys")
-plt.ylim([-1, 1])
-plt.xlabel('x (nm)')
-plt.ylabel('z (nm)')
-plt.title(r'$\epsilon_{zx}$')
-plt.colorbar()
-plt.savefig('ezx_hetero.pdf', bbox_inches = 'tight')
-#%% 2D plot of stress (sigma_xx) along the z-axis, fixed at x=0
-plt.figure()    
-plt.plot(z[:], sigmaxx[:,100])
-plt.xlabel('z')
-plt.ylabel(r'$\sigma_{xx}$')
-plt.figure()
-plt.plot(z[:50], sigmaxx[:50, 100])
-plt.xlabel('z')
-plt.ylabel(r'$\sigma_{xx}$')
-plt.figure()
-plt.xlabel('z')
-plt.ylabel(r'$\sigma_{xx}$')
-plt.plot(z[50:], sigmaxx[50:,100])
+        
+        
+#plt.figure()
+#plt.pcolormesh(Xax*1e9, Zax*1e9, strainxx, vmin = -.27, vmax = 0.27, cmap = "Greys")
+#plt.ylim([-1, 1])
+#plt.xlabel('x (nm)')
+#plt.ylabel('z (nm)')
+#plt.title(r'$\epsilon_{xx}$')
+#plt.colorbar()
+#plt.savefig('exx_hetero.pdf', bbox_inches = 'tight')
+#plt.figure()
+#plt.pcolormesh(Xax*1e9, Zax*1e9, strainzz, vmin = -.27, vmax = 0.27, cmap = "Greys")
+#plt.ylim([-1, 1])
+#plt.xlabel('x (nm)')
+#plt.ylabel('z (nm)')
+#plt.title(r'$\epsilon_{zz}$')
+#plt.colorbar()
+#plt.savefig('ezz_hetero.pdf', bbox_inches = 'tight')
+#plt.figure()
+#plt.pcolormesh(Xax*1e9, Zax*1e9, strainzx, vmin = -.27, vmax = 0.27, cmap = "Greys")
+#plt.ylim([-1, 1])
+#plt.xlabel('x (nm)')
+#plt.ylabel('z (nm)')
+#plt.title(r'$\epsilon_{zx}$')
+#plt.colorbar()
+#plt.savefig('ezx_hetero.pdf', bbox_inches = 'tight')
+##%% 2D plot of stress (sigma_xx) along the z-axis, fixed at x=0
+#plt.figure()    
+#plt.plot(z[:], sigmaxx[:,100])
+#plt.xlabel('z')
+#plt.ylabel(r'$\sigma_{xx}$')
+#plt.figure()
+#plt.plot(z[:50], sigmaxx[:50, 100])
+#plt.xlabel('z')
+#plt.ylabel(r'$\sigma_{xx}$')
+#plt.figure()
+#plt.xlabel('z')
+#plt.ylabel(r'$\sigma_{xx}$')
+#plt.plot(z[50:], sigmaxx[50:,100])
+#
+##%% 2D plot of strain (e_xx) along the z-axis, fixed at x=0.3
+#plt.figure()
+#plt.plot(z*1e9, strainxx[:, 100], color = 'xkcd:black')
+#plt.xlabel('z (nm)')
+#plt.ylabel(r'$\epsilon_{xx}$')
+#plt.savefig('strainxx_slice.pdf', bbox_inches = 'tight')
+#
+#plt.figure()
+#plt.plot(z, strainzz[:, 100])
+#plt.xlabel('z')
+#plt.ylabel(r'$e_{zz}$')
+#
+#plt.figure()
+#plt.plot(z, strainzx[:, 100])
+#plt.xlabel('z')
+#plt.ylabel(r'$e_{zx}$')
+        
+#Replace any large or small values with zlim
 
-#%% 2D plot of strain (e_xx) along the z-axis, fixed at x=0.3
-plt.figure()
-plt.plot(z*1e9, strainxx[:, 100], color = 'xkcd:black')
-plt.xlabel('z (nm)')
-plt.ylabel(r'$\epsilon_{xx}$')
-plt.savefig('strainxx_slice.pdf', bbox_inches = 'tight')
+strainxx[strainxx > 0.5] = 0.5
+strainxx[strainxx < -0.5] = -0.5
 
-plt.figure()
-plt.plot(z, strainzz[:, 100])
-plt.xlabel('z')
-plt.ylabel(r'$e_{zz}$')
-
-plt.figure()
-plt.plot(z, strainzx[:, 100])
-plt.xlabel('z')
-plt.ylabel(r'$e_{zx}$')
+fig = plt.figure()
+ax = Axes3D(fig)
+ax.plot_surface(Xax*1e9, Zax*1e9, strainxx, cmap = 'binary')
+ax.set_zlim3d(-0.5, 0.5)
+ax.view_init(azim = -30)
 
 #%% 2D plot of

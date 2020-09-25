@@ -41,19 +41,19 @@ mpl.rcParams['mathtext.bf'] = 'Apple Symbols'
 Load relaxation times
 '''
 
-twist1 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020/tilt1spectral_updatetau.npy')
-twist2 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020/tilt2spectral_updatetau.npy')
-twist5 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020/tilt5spectral_updatetau.npy')
-twist8 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020/tilt8spectral_updatetau.npy')
-twist10 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020/tilt10spectral_updatetau.npy')
-twist15 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020/tilt15spectral_updatetau.npy')
+twist1 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020_2/twist1spectral_updatetau.npy')
+twist2 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020_2/twist2spectral_updatetau.npy')
+twist5 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020_2/twist5spectral_updatetau.npy')
+twist8 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020_2/twist8spectral_updatetau.npy')
+twist10 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020_2/twist10spectral_updatetau.npy')
+twist15 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020_2/twist15spectral_updatetau.npy')
 
 '''
 Calculate transport coefficients
 '''
 
 color = ['xkcd:black', 'xkcd:plum', 'xkcd:blood red', 'xkcd:dark salmon', 'xkcd:silver']
-labels = [r'10$^{\circ}$', r'5$^{\circ}$', r'2$^{\circ}$', r'1$^{\circ}$']
+labels = [r'15$^{\circ}$', r'10$^{\circ}$', r'8$^{\circ}$', r'5$^{\circ}$', r'2$^{\circ}$', r'1$^{\circ}$']
 
 input_dict = {'avg_vs': 6084,
              'atmV': [2E-29],
@@ -88,11 +88,11 @@ for T in [100, 150,200,250,300]:
 '''
 Set up colormap
 '''
-inferno = cm = plt.get_cmap('viridis_r') 
-cNorm  = colors.Normalize(vmin=0, vmax=10)
-scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=inferno)    
+viridis = cm = plt.get_cmap('viridis_r') 
+cNorm  = colors.Normalize(vmin=0, vmax=16)
+scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=viridis)    
 
-theta = [10,5, 2,1]
+theta = [15, 10,8,5, 2,1]
 colors = []
 for t in theta:
     colors.append(scalarMap.to_rgba(t))
@@ -100,7 +100,7 @@ for t in theta:
 fig, ax = plt.subplots(2, sharex = True)
  
 i = 0
-for tbc in [tbc10, tbc5, tbc2, tbc1]:
+for tbc in [tbc15, tbc10, tbc8, tbc5, tbc2, tbc1]:
     ax[0].plot([100,150,200,250,300], tbc, '-o', color = colors[i], label = labels[i])
     i = i+1
 
@@ -149,9 +149,9 @@ fig.savefig('rk_versusT_pred_exp.pdf', bbox_inches = 'tight')
 Plot the Read Shockley Energy versus the interfacial thermal resistance
 '''
 
-tbc_list = [tbc1[-1], tbc2[-1], tbc5[-1],  tbc8[-1], tbc10[-1]]
+tbc_list = [tbc1[-1], tbc2[-1], tbc5[-1],  tbc8[-1], tbc10[-1], tbc15[-1]]
 
-theta = [1, 2, 5, 8, 10]
+theta = [1, 2, 5, 8, 10, 15]
 colors = []
 
 for t in theta:
@@ -168,13 +168,13 @@ plt.figure()
 plt.scatter([tbc * 1E3 for tbc in tbc_list], GBenergy, c = colors, s = 40)
 mpl.rcParams['font.size'] = '10'
 
-cbar = plt.colorbar(scalarMap, pad = -0.09, shrink = 0.5)
-cbar.ax.locator_params(nbins = 6)
+cbar = plt.colorbar(scalarMap, shrink = 0.5)
+cbar.ax.locator_params(nbins = 7)
 cbar.ax.set_yticklabels([r'0$^{\circ}$', r'2$^{\circ}$', r'4$^{\circ}$', r'6$^{\circ}$',\
-                         r'8$^{\circ}$', r'10$^{\circ}$'])
+                         r'8$^{\circ}$', r'10$^{\circ}$', r'15$^{\circ}$'])
 
 ax = plt.gca()
-ax.set_aspect(40)
+#ax.set_aspect(40)
 plt.xlabel(r'$R_K$ (10$^{-12}$ m$^2$K/W)')
 plt.ylabel(r'Boundary Energy (J/m$^2)$')
 ax.text(0.92, 0.10, r'$\mathrm{\theta}$', verticalalignment = 'center', horizontalalignment = 'center', transform = ax.transAxes, color = 'xkcd:black', fontsize = 20, weight = 'bold')
@@ -196,16 +196,18 @@ twist_dict = {
         '1': twist1,
         '2': twist2,
         '5': twist5,
+        '8' : twist8,
         '10': twist10,
+        '15': twist15,
         }
-theta = [1,2,5,10]
+theta = [1,2,5,8, 10, 15]
 for t in theta:
     colors.append(scalarMap.to_rgba(t))
     
-labels = [r'1$^{\circ}$', r'2$^{\circ}$', r'5$^{\circ}$', r'10$^{\circ}$']
+labels = [r'1$^{\circ}$', r'2$^{\circ}$', r'5$^{\circ}$', r'8$^{\circ}$', r'10$^{\circ}$', r'15$^{\circ}$']
 
 i=0
-for t in ['1', '2', '5', '10']:
+for t in ['1', '2', '5', '8', '10', '15']:
     plt.plot(twist_dict[t][0] / (twist.vs * twist.k_max), twist_dict[t][1], color = colors[i], label = labels[i])
     i = i+1
     
@@ -229,7 +231,7 @@ mpl.rcParams['font.size'] = '14'
 plt.figure()
 ax = plt.gca()
 i=0
-for t in ['1', '2', '5', '10']:
+for t in ['1', '2', '5', '8']:
     plt.loglog(twist_dict[t][0] / (twist.vs * twist.k_max), twist_dict[t][1], color = colors[i], label = labels[i])
     i = i+1
 
@@ -237,8 +239,8 @@ for t in ['1', '2', '5', '10']:
 '''
 Plot the trend lines
 '''
-plt.loglog(twist10[0][30:] / (twist.vs * twist.k_max), twist10[1][30]*(twist10[0][30:]/twist10[0][30])**(-1.1) * 0.75, color = 'xkcd:black')
-plt.loglog(twist1[0][50:] / (twist.vs * twist.k_max), twist1[1][50]*(twist1[0][50:]/twist1[0][50])**(-0.62) * 1.2, color = 'xkcd:black')
+plt.loglog(twist8[0][30:] / (twist.vs * twist.k_max), twist8[1][30]*(twist8[0][30:]/twist8[0][30])**(-1.1) * 0.75, color = 'xkcd:black')
+plt.loglog(twist1[0][50:] / (twist.vs * twist.k_max), twist1[1][50]*(twist1[0][50:]/twist1[0][50])**(-0.70) * 1.2, color = 'xkcd:black')
 mpl.rcParams['font.size'] = '10'
 #plt.colorbar(scalarMap, shrink = 0.7)
 

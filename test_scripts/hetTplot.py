@@ -37,8 +37,10 @@ mpl.rcParams['mathtext.fontset'] = 'custom'
 
 mpl.rcParams['mathtext.bf'] = 'Apple Symbols'
 
-het = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020/hetintspectral_updatetau.npy')
+het = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020_2/heterointerfaceNonespectral_updatetau.npy')
 
+#To Compensate for factor of 2 error in integration!
+het[1] = het[1] / 2
 
 vs = (6084 + 5400) / 2
 V = 2E-29
@@ -60,7 +62,7 @@ plt.ylabel(r'$\tau \; \mathrm{(ns)}$', fontsize=16)
 
 ax = plt.gca()
 #ax.set_xscale('log')
-ax.set_yscale('log')
+#ax.set_yscale('log')
 ax.yaxis.set_minor_formatter(mticker.ScalarFormatter())
 ax.yaxis.get_minor_formatter().set_scientific(False)
 ax.yaxis.get_minor_formatter().set_useOffset(False)

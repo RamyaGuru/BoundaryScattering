@@ -12,7 +12,7 @@ from helper import *
 '''
 Constants
 '''
-hbar = 6.6260696 * 10**-34 / (2 * math.pi)
+hbar = 6.6260696e-34 / (2 * math.pi)
 kB = 1.38064852e-23
 
 
