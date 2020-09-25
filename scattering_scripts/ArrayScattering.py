@@ -30,7 +30,7 @@ class ArrayScattering:
        geom = ['twist', 'tilt', 'twin']
        Initialize an ArrayScattering object with the crystal and microstructure inputs
     '''
-    def __init__(self, avg_vs, atmV: list, N, d_GS, bulkmod, nu, theta = None, ax = None, geom = 'tilt', amm = None, gruneisen = 1):
+    def __init__(self, avg_vs, atmV: list, N, d_GS, bulkmod, nu, theta = None, ax = None, geom = 'tilt', amm = None, bvK = False, gruneisen = 1):
        if geom not in ['twist', 'tilt', 'heterointerface', 'twin']:
            raise ValueError('GB geometry value not valid')
        self.theta = theta
@@ -44,7 +44,10 @@ class ArrayScattering:
        self.k_max = (6 * math.pi**2 / (self.V * self.N))**(1 / 3)
        self.bulkmod = bulkmod
        self.nu = nu
-       self.omegaD = self.vs * self.k_max
+       if bvK:
+           self.omegaD = (2 / math.pi) * self.vs * self.k_max
+       else:
+           self.omegaD = self.vs * self.k_max
        self.geom = geom
        if amm:
            self.amm = amm
@@ -80,12 +83,24 @@ class ArrayScattering:
         '''
         return grun
     
-    def omega_kmag(self, kmag):
+    def omega_debye(self, kmag):
         '''
         Input: k_vector
         Output: freqeuncy (scalar)
         '''
         return self.vs * kmag
+    
+    def omega_bvk(self, kmag):
+        print('here')
+        omega0 = (2 / math.pi) * self.vs * self.k_max
+        return omega0 * math.sin(math.pi * kmag / (2 * self.k_max))
+    
+    def omega_kmag(self,kmag):
+        if self.bvK:
+            omega = self.omega_bvk(kmag)
+        else:
+            omega = self.omega_debye(kmag)
+        return omega
     
     def vg_kmag(self, kmag):
         '''
@@ -93,6 +108,7 @@ class ArrayScattering:
         Output: group velocity (scalar)
         '''  
         return self.vs
+    
     
     '''
     Read Shockley Grain Boundary Energy
@@ -275,7 +291,6 @@ class ArrayScattering:
         return (self.n_1D / (hbar ** 2 * self.D ** 2 * self.vg_kmag(k) * k)) * running_sum  
     
     def GammaArray_rot(self, k_vector, V_twiddle_R):
-        k = ArrayScattering.k_mag(k_vector)
         gamma = (self.n_1D / (hbar ** 2 * self.vs)) * V_twiddle_R(self, k_vector)
         return gamma
     

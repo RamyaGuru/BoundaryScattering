@@ -81,7 +81,7 @@ Initialize input dictionary with Materials Project
 #twist = AS(**input_dict, geom = 'twist', theta = 5, ax = {'n' : 1, 'm' : 2}, d_GS = 350E-9)
 #amm = AMMTransport(cmat, density, input_dict['atmV'][0], input_dict['N'])
 
-def initialize(input_dict, cmat, density, theta, geom, ax = 1, d_GS = 350e-9):
+def initialize(input_dict, cmat, density, theta, geom, ax = 1, d_GS = 350e-9, bvK = True):
     amm = AMMTransport(cmat, density, input_dict['atmV'][0], input_dict['N'])
     twist = AS(**input_dict, geom = geom, amm = amm, theta = theta, ax = ax, d_GS = d_GS)
     return twist
@@ -252,7 +252,7 @@ if __name__ == "__main__":
     twist = initialize(input_dict, cmat, density, theta, geom = 'twist', ax = ax, d_GS = d_GS)
 #    Gamma_list = calculate_Gammas(200)
 #    SPlt.diffraction_plot(twist, Gamma_list[0], Gamma_list[1])
-    SPlt.convergence_tau_plot(twist, Gamma_rot, 110, T = 300)
+    SPlt.convergence_tau_plot(twist, Gamma_rot, 150, T = 300)
 #    spectral = TT.calculate_spectral_props(twist, Gamma_rot_only, prop_list = ['tau'],\
 #                                        n_angle = 200, n_k = 10, T = 300) #n_angle = 200, n_k = 100
 #    SPlt.spectral_plots(twist, spectral, prop_list = ['tau'], save = True)
