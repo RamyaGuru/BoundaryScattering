@@ -44,7 +44,8 @@ class ArrayScattering:
        self.k_max = (6 * math.pi**2 / (self.V * self.N))**(1 / 3)
        self.bulkmod = bulkmod
        self.nu = nu
-       if bvK:
+       self.bvK = bvK
+       if self.bvK:
            self.omegaD = (2 / math.pi) * self.vs * self.k_max
        else:
            self.omegaD = self.vs * self.k_max
@@ -91,7 +92,6 @@ class ArrayScattering:
         return self.vs * kmag
     
     def omega_bvk(self, kmag):
-        print('here')
         omega0 = (2 / math.pi) * self.vs * self.k_max
         return omega0 * math.sin(math.pi * kmag / (2 * self.k_max))
     

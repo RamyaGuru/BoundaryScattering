@@ -248,7 +248,7 @@ def calculate_Gammas(twist, n_k):
 
 
 if __name__ == "__main__":
-    theta = 5
+    theta = 12
     twist = initialize(input_dict, cmat, density, theta, geom = 'twist', ax = ax, d_GS = d_GS)
 #    Gamma_list = calculate_Gammas(200)
 #    SPlt.diffraction_plot(twist, Gamma_list[0], Gamma_list[1])
