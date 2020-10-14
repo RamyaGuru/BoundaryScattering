@@ -68,9 +68,9 @@ Iniitalize ArrayScattering and AMMTransport Objects
 #het = AS(**input_dict, geom = 'heterointerface', ax = {'n' : 1, 'm' : 2}, d_GS = 350E-9)
 #amm = HA(cmat1, cmat2, density1, density2, christoffel = True)
 
-def initialize(input_dict, cmat : list, density : list, geom, ax = {'n' : 1, 'm' : 2}, d_GS = 350e-9):
+def initialize(input_dict, cmat : list, density : list, geom, ax = {'n' : 1, 'm' : 2}, d_GS = 350e-9, bvK = False):
     amm = HA(cmat[0], cmat[1], density[0], density[1], christoffel = True)
-    het = AS(**input_dict, geom = 'heterointerface', amm = amm, ax = ax, d_GS = d_GS)
+    het = AS(**input_dict, geom = 'heterointerface', amm = amm, ax = ax, d_GS = d_GS, bvK = bvK)
     return het
     
 
@@ -120,7 +120,8 @@ def V_twiddle_n(het, k_vector, kprime_vector):
     return V_twiddle_sq_Delta_n(het, k_vector, kprime_vector) + V_twiddle_sq_S_n(het, k_vector, kprime_vector) +\
 V_twiddle_sq_R_n(het, k_vector, kprime_vector)
 
-
+def V_twiddle_n_no_rot(het, k_vector, kprime_vector):
+    return V_twiddle_sq_Delta_n(het, k_vector, kprime_vector) + V_twiddle_sq_S_n(het, k_vector, kprime_vector)
 # m array
 
 def V_twiddle_sq_Delta_m(het, k_vector, kprime_vector):
@@ -151,6 +152,10 @@ def V_twiddle_m(het, k_vector, kprime_vector):
 V_twiddle_sq_R_m(het, k_vector, kprime_vector)
 
 
+def V_twiddle_m_no_rot(het, k_vector, kprime_vector):
+    return V_twiddle_sq_Delta_m(het, k_vector, kprime_vector) + V_twiddle_sq_S_m(het, k_vector, kprime_vector)
+
+
 #Integrate over the scattering potentials
 def Gamma_GBS(het, k_vector, kprime_yvectors, kprime_zvectors):
    tot = [het.GammaArray(k_vector, kprime_yvectors, V_twiddle_n, het.ax['n']) \
@@ -158,9 +163,15 @@ def Gamma_GBS(het, k_vector, kprime_yvectors, kprime_zvectors):
           ,het.GammaArray_rot(k_vector, V_tilde_amm)]
    return sum(tot)
 
-def Gamma_GBS_no_rot(het, k_vector, kprime_yvectors, kprime_zvectors):
+def Gamma_GBS_no_amm(het, k_vector, kprime_yvectors, kprime_zvectors):
     tot = [het.GammaArray(k_vector, kprime_yvectors, V_twiddle_n, het.ax['n']) \
           ,het.GammaArray(k_vector, kprime_zvectors, V_twiddle_m, het.ax['m'])]
+    return sum(tot)
+
+def Gamma_GBS_no_rot(het, k_vector, kprime_yvectors, kprime_zvectors):
+    tot = [het.GammaArray(k_vector, kprime_yvectors, V_twiddle_n_no_rot, het.ax['n']) \
+          ,het.GammaArray(k_vector, kprime_zvectors, V_twiddle_m_no_rot, het.ax['m']) \
+          ,het.GammaArray_rot(k_vector, V_tilde_amm)]
     return sum(tot)
 
 def Gamma_GBS_rot_only(het, k_vector, kprime_yvectors, kprime_zvectors):
@@ -172,12 +183,15 @@ def Gamma_rot(het, k_vector):
 def Gamma_rot_only(het, k_vector):
     return Gamma_GBS_rot_only(het, k_vector, het.kprimes_y(k_vector), het.kprimes_z(k_vector)) * 1E-9
 
+def Gamma_no_amm(het, k_vector):
+    return Gamma_GBS_no_amm(het, k_vector, het.kprimes_y(k_vector), het.kprimes_z(k_vector)) * 1E-9
+
 def Gamma_no_rot(het, k_vector):
     return Gamma_GBS_no_rot(het, k_vector, het.kprimes_y(k_vector), het.kprimes_z(k_vector)) * 1E-9
 
 if __name__ == '__main__':
     het = initialize(input_dict, cmat = [cmat1, cmat2], density = [density1, density2],\
-                     geom = geom)
+                     geom = geom, bvK = True)
     SPlt.convergence_tau_plot(het, Gamma_rot, 110, T = 300)
 #    spectral = TT.calculate_spectral_props(het, Gamma_rot, prop_list = ['tau'],\
 #                                         n_angle = 100, n_k = 100, T = 300)    

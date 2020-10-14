@@ -22,7 +22,6 @@ These are (001) type twist grain boundaries
 from ArrayScattering import ArrayScattering as AS
 import ThermalTransport as TT
 import ScatteringPlots as SPlt
-from AngularVs import ElasticProps, v_long, v_shear, v_sound, v_xy
 import math
 import numpy as np
 from math import asin, acos, pi, sin, cos, tan, atan
@@ -103,22 +102,6 @@ Modify to do christoffel calculation
 '''
 Alternate rotation potentials (previous tries)
 '''    
-
-def V_twiddle_sq_R(twist, k_vector):
-#    k = AS.k_mag(k_vector)
-#    q_vector = np.asarray(kprime_vector)- np.asarray(k_vector)
-#    #calculate the angle of incidence, what about misorientation angle?
-#    inc = acos(k_vector[0]/(k))
-    vs_new = v_sound(twist.theta * (math.pi / 180))
-    # k will cancel out
-    return (helper.hbar*(abs(vs_new - twist.vs)/(2*math.pi)))**2  #multiply by the ratio of k to q?
-
-#def V_R_ch(k_vector, kprime_vector):
-#    k = AS.k_mag(k_vector)
-#    knorm = k_vector / k
-#    q_vector = np.asarray(kprime_vector) - np.asarray(k_vector)
-#    v1, v2 = amm.vs_rot(knorm, helper.rot_tensor_x, twist.theta)
-#    return ((helper.hbar / (2 * pi)) * abs(1000 * (v2 - v1)) * (k / q_vector[0]))**2  
     
 
 #Shouldn't the rotation be about x?

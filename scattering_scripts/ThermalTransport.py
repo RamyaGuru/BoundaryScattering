@@ -236,8 +236,8 @@ def transport_coeffs_from_tau(gb : AS, k_list, tau_spectral, T, save = False):
         kappa = kappa + Cv_s * vg**2 * tau * 1E-9 * dk
         a = (vg * tau * 1E-9 * gb.n_1D) / ((3/4) + (vg * tau * 1E-9 * gb.n_1D))
         alpha.append(a)
-#        TBC = TBC + a * vg * Cv_s * dk
-        TBC = TBC + (a / (1 - a)) * vg * Cv_s * dk
+        TBC = TBC + a * vg * Cv_s * dk
+#        TBC = TBC + (a / (1 - a)) * vg * Cv_s * dk
     transport = {'kappa': kappa / 3, 'TBC' : TBC / 4, 'spectral_alpha': alpha}
     if save:
         np.savez('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/' +\

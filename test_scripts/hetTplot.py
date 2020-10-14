@@ -55,8 +55,10 @@ ax = plt.axes()
 '''
 Spectral Relaxation Time
 '''
+#omega_max = (2 / math.pi) * (vs * k_max)
+omega_max = vs * k_max
 
-plt.plot(het[0] / (vs * k_max), het[1], color = 'xkcd:darkish blue')
+plt.plot(het[0] / omega_max, het[1], color = 'xkcd:darkish blue')
 plt.xlabel('$\omega / \omega_{\mathrm{max}}$', fontsize=16)
 plt.ylabel(r'$\tau \; \mathrm{(ns)}$', fontsize=16)
 
@@ -66,7 +68,7 @@ ax = plt.gca()
 ax.yaxis.set_minor_formatter(mticker.ScalarFormatter())
 ax.yaxis.get_minor_formatter().set_scientific(False)
 ax.yaxis.get_minor_formatter().set_useOffset(False)
-ax.yaxis.set_minor_formatter(mticker.FormatStrFormatter('%.2f'))
+ax.yaxis.set_major_formatter(mticker.FormatStrFormatter('%.3f'))
 ax.xaxis.set_major_formatter(mticker.FormatStrFormatter('%.1f'))
 plt.savefig('hetint_tauspectral.pdf', bbox_inches = 'tight')
 
