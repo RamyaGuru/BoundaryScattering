@@ -191,7 +191,7 @@ def Gamma_no_rot(het, k_vector):
 
 if __name__ == '__main__':
     het = initialize(input_dict, cmat = [cmat1, cmat2], density = [density1, density2],\
-                     geom = geom, bvK = True)
+                     geom = geom)
     SPlt.convergence_tau_plot(het, Gamma_rot, 110, T = 300)
 #    spectral = TT.calculate_spectral_props(het, Gamma_rot, prop_list = ['tau'],\
 #                                         n_angle = 100, n_k = 100, T = 300)    

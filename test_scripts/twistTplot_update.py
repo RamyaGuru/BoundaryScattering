@@ -21,6 +21,9 @@ import matplotlib as mpl
 import matplotlib.colors as mcolors
 import matplotlib.cm as cmx
 import matplotlib.ticker as ticker
+from brokenaxes import brokenaxes
+from matplotlib.gridspec import GridSpec
+
 
 mpl.rcdefaults()
 mpl.rcParams['font.sans-serif'] = 'Apple Symbols'
@@ -60,6 +63,7 @@ input_dict = {'avg_vs': 6084,
              'atmV': [2E-29],
              'N': 2,
              'bulkmod' : 97.83E9,
+             'shearmod' : 60E9,
              'nu' : 0.29,
              'gruneisen' : 1,
         }
@@ -74,7 +78,7 @@ tbc7 = []
 tbc8 = []
 tbc10 = []
 tbc15 = []
-for T in [100, 150,200,250,300]:
+for T in [100, 150,200,250,300, 500]:
     transport1 = TT.transport_coeffs_from_tau(twist, twist1[0] / twist.vs, twist1[1], T)
     transport2 = TT.transport_coeffs_from_tau(twist, twist2[0] / twist.vs, twist2[1], T)
     transport3 = TT.transport_coeffs_from_tau(twist, twist3[0] / twist.vs, twist3[1], T)
@@ -97,25 +101,53 @@ Set up colormap
 '''
 viridis = cm = plt.get_cmap('viridis_r') 
 cNorm  = mcolors.Normalize(vmin=0, vmax=16)
-scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=viridis)    
+scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=viridis)   
+
+'''
+Load the MD data
+'''
+fig = plt.figure()
+sps1, sps2 = GridSpec(2,1)
+
+ax0 =  brokenaxes(xlims=((75,305),(475, 505)), subplot_spec=sps1)
+ax1 =  brokenaxes(xlims=((75,305),(475, 505)), subplot_spec=sps2)
+
+MD = [[500, 500, 500], [0.61, 0.76, 1.1]]
+
+md_color = scalarMap.to_rgba(11.42)
+
+m_list = ['^', 'x', '+']
+
+label_list = ['11.42$^{\circ}$', 'Ref. 6', 'Ref. 21', 'Ref. 4']
+
+ax0.scatter([0], [0], marker = 'None', label = '11.42$^{\circ}$')
+
+for m in range(len(MD[0])):
+    ax0.scatter(MD[0][m], MD[1][m], color = md_color, marker = m_list[m], label = label_list[m+1])
+ 
+leg1 = ax0.legend(prop = {'size': 12}, loc = (1.02, 0.1))
 
 theta = [10, 7, 3, 1]
 colors = []
 for t in theta:
     colors.append(scalarMap.to_rgba(t))
 
-fig, ax = plt.subplots(2, sharex = True)
- 
+#fig, ax = plt.subplots(2, sharex = True)
+
+
 i = 0
 for tbc in [tbc10, tbc7, tbc3, tbc1]:
-    ax[0].plot([100,150,200,250,300], tbc, '-o', color = colors[i], label = labels[i])
+    ax0.plot([100,150,200,250,300, 500], tbc, '-o', color = colors[i], label = labels[i])
     i = i+1
 
 fig.text(0, 0.5, r'$R_K$  (10$^{-9}$ m$^2$K/W)', va='center', rotation='vertical')
-ax[1].set_xlabel(r'T (K)')
-ax[0].legend(prop = {'size': 12}, loc = (1.02, 0.2))
+fig.text(0.5, 0, r'T (K)', va='center')
+#ax1.set_xlabel(r'T (K)')
+leg2 = ax0.legend(prop = {'size': 12}, loc = (1.02, 0.1))
 
-#Load the experimental data 
+'''
+Load the experimental data
+'''
 SiSi_twist = np.loadtxt('/Users/ramyagurunathan/Documents/PhDProjects/The-Grid-Interface/qinghao_sige_rk/Si_Si_twist_datasets.csv', delimiter = ",", skiprows = 2)
 
 angles = ['86.5', '70.4', '15.4', '6.9' ,'3.4']
@@ -137,20 +169,21 @@ for t in e_theta:
   
 j = 0
 for theta in ['6.9', '3.4']:
-    ax[1].plot(data[theta][0], data[theta][1],'-o', color = e_colors[j], label = labels[j])
+    ax1.plot(data[theta][0], data[theta][1],'-o', color = e_colors[j], label = labels[j])
     j = j+1
 
-ax[1].legend(prop = {'size': 12}, loc = (1.02, 0.4))
-ax[1].yaxis.set_minor_formatter(mpl.ticker.NullFormatter())
-ax[1].yaxis.set_major_formatter(mpl.ticker.ScalarFormatter())
-ax[1].xaxis.set_minor_locator(mpl.ticker.MultipleLocator(100))
-ax[1].xaxis.set_minor_formatter(mpl.ticker.ScalarFormatter())
-ax[1].xaxis.set_major_formatter(mpl.ticker.ScalarFormatter())
-ax[1].ticklabel_format(style="plain")
+ax1.legend(prop = {'size': 12}, loc = (1.02, 0.4))
+fig.savefig('rk_T_pred_exp_MD.pdf', bbox_inches = 'tight')
 
 
-fig.savefig('rk_versusT_pred_exp.pdf', bbox_inches = 'tight')
+ax1.ticklabel_format(style="plain")
 
+
+
+
+fig.savefig('rk_T_pred_exp_MD.pdf', bbox_inches = 'tight')
+
+#%%
 
 '''
 Spectral Tau Plots
@@ -193,7 +226,7 @@ for t in ['10', '7', '5', '2', '1']:
              color = colors[i], label = labels[t][0] + r'; ' + labels[t][1] + ' nm')
     i = i+1
 
-ax.text(0.85, 0.95, r'$\mathrm{\theta}$; $D$', verticalalignment = 'center', horizontalalignment = 'center',\
+ax.text(0.85, 0.75, r'$\mathrm{\theta}$; $D$', verticalalignment = 'center', horizontalalignment = 'center',\
         transform = ax.transAxes, color = 'xkcd:black', fontsize = 10)    
 ax.xaxis.set_major_formatter(ticker.FormatStrFormatter('%.1f'))
 ax.yaxis.set_major_formatter(ticker.FormatStrFormatter('%.0f'))
@@ -202,7 +235,7 @@ plt.xlabel('$\omega / \omega_{\mathrm{max}}$')
 plt.ylabel(r'$\tau \; \mathrm{(ns)}$')
 mpl.rcParams['font.size'] = '10'
 #plt.colorbar(scalarMap, shrink = 0.7)
-plt.legend(loc = 'upper right', bbox_to_anchor = (1, 0.95), frameon = False)
+plt.legend(loc = 'upper right', bbox_to_anchor = (1, 0.75), frameon = False)
 plt.savefig('twisttauspectral.pdf', bbox_inches = 'tight')
 
 
@@ -235,7 +268,7 @@ ax.yaxis.set_major_formatter(ticker.FormatStrFormatter('%.1f'))
 ax.xaxis.set_major_formatter(ticker.FormatStrFormatter('%.2f'))
 
 plt.xlabel('$\omega / \omega_{\mathrm{max}}$')
-plt.ylabel(r'$\tau \; \mathrm{(ns)}$')
+plt.ylabel(r'$\tau \; \mathrm{(ns)}$', labelpad = 0)
 
 plt.savefig('loglog_twisttau.pdf', bbox_inches = 'tight')
 
@@ -255,33 +288,81 @@ trunc = truncate_colormap(plt.get_cmap("viridis_r"), 0, 0.5)
 ctNorm  = mcolors.Normalize(vmin=1, vmax=7)
 scaMap_trunc = cmx.ScalarMappable(norm=ctNorm, cmap=trunc) 
 
-tbc_list = [tbc1[-1], tbc2[-1], tbc5[-1],  tbc8[-1]]
+tbc_list = [tbc1[-1], tbc2[-1], tbc3[-1], tbc5[-1],  tbc7[-1], tbc8[-1], tbc10[-1], tbc15[-1]]
 
-theta = [1, 2, 5, 7]
+theta = [1, 2, 3, 5, 7, 8, 10, 15]
 colors = []
 
 for t in theta:
-    colors.append(scaMap_trunc.to_rgba(t))
+    colors.append(scalarMap.to_rgba(t))
 
-GBenergy = []
+Strain_energy = []
+Strain_energy2 = []
+Tot_energy = []
+Tot_energy2 = []
 
 for t in theta:
     as_obj = AS(**input_dict, geom = 'tilt', theta = t, ax = 1, d_GS = 350E-9, bvK = True)
-    print(as_obj.D)
-    GBenergy.append(AS.gb_energy(as_obj))
+    Strain_energy.append(AS.gb_energy(as_obj))
+    Tot_energy.append(AS.gb_energy(as_obj))
+
+angles = []
+i = 1
+for t in range(1, 90):
+    as_obj = AS(**input_dict, geom = 'tilt', theta = t, ax = 1, d_GS = 350E-9, bvK = True)
+    Strain_energy2.append(AS.gb_energy_strain_RH(as_obj))
+    Tot_energy2.append(AS.gb_energy_tot_RH(as_obj))
+    angles.append(i)
+    i = i+1
 
 plt.rcParams["figure.figsize"] = [5, 3]
 plt.figure()
-plt.scatter([tbc for tbc in tbc_list], GBenergy, c = colors, s = 40)
+plt.scatter(Strain_energy, [tbc for tbc in tbc_list], c = colors, s = 40)
 mpl.rcParams['font.size'] = '10'
-cbar = plt.colorbar(scaMap_trunc, shrink = 0.5, pad = -0.1, ticks = [1,3,5,7])
+cbar = plt.colorbar(scalarMap, shrink = 0.5, pad = -0.1, ticks = [1, 3,5,7, 10, 15])
 #cbar.ax.locator_params(nbins = 4)
-cbar.ax.set_yticklabels([r'1$^{\circ}$', r'3$^{\circ}$', r'5$^{\circ}$', r'7$^{\circ}$'])
+cbar.ax.set_yticklabels([r'1$^{\circ}$', r'3$^{\circ}$', r'5$^{\circ}$', r'7$^{\circ}$',  r'10$^{\circ}$', r'15$^{\circ}$'])
 
 ax = plt.gca()
 #ax.set_aspect(40)
-plt.xlabel(r'$R_K$ (m$^2$K/GW)')
-plt.ylabel(r'Boundary Energy (J/m$^2)$')
+plt.ylabel(r'$R_K$ (m$^2$K/GW)')
+plt.xlabel(r'Interfacial Energy (J/m$^2)$')
 ax.text(0.91, 0.14, r'$\mathrm{\theta}$', verticalalignment = 'center', horizontalalignment = 'center', transform = ax.transAxes, color = 'xkcd:black', fontsize = 20, weight = 'bold')
 plt.savefig('TBR_energy.pdf', bbox_inches = 'tight')
-    
+
+
+'''
+Try Double y-axis plot
+'''
+
+fig, ax1 = plt.subplots()
+
+color = 'xkcd:blood red'
+ax1.set_xlabel(r'Twist Angle $\theta$')
+ax1.set_ylabel('Interfacial Energy')
+ax1.plot(theta, Tot_energy, color = color)
+#ax1.plot(angles, Tot_energy2, color = color, linestyle = ':')
+ax1.tick_params(axis='y', labelcolor=color)
+
+ax2 = ax1.twinx()
+
+color = 'xkcd:medium blue'
+ax2.set_xlabel(r'Twist Angle $\theta$')
+ax2.set_ylabel(r'$R_K$ (m$^2$K/GW)')
+ax2.scatter(theta, [tbc for tbc in tbc_list], color = color, s = 40)
+ax2.tick_params(axis='y', labelcolor=color)
+
+'''
+Get the AMM contribution to the thermal boundary resistance
+'''
+twist1_amm = np.ones(100) * twist1[1][0]
+twist3_amm = np.ones(100) * twist3[1][0]
+twist7_amm = np.ones(100) * twist7[1][0]
+twist10_amm = np.ones(100) * twist10[1][0]
+
+for t, tbc in zip([twist1_amm, twist3_amm, twist7_amm, twist10_amm], [tbc1, tbc3, tbc7, tbc10]):
+    tbc_AMM = []
+    for T in [100, 150,200,250,300, 500]:
+        transport = TT.transport_coeffs_from_tau(twist, twist1[0] / twist.vs, t, T)
+        tbc_AMM.append((1 / transport['TBC']) * 1E9)
+    print(np.array(tbc_AMM) / np.array(tbc))

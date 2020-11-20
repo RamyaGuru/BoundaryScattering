@@ -60,5 +60,5 @@ def average_group_velocity(vg_mat):
    return avg_vg*1000
 
 def average_phase_velocity(vp):
-    avg_vp = (1/3) * ( vp[0]**(-3) + vp[1]**(-3) + vp[2]**(-3))**(-1/3)
-    return avg_vp
+    avg_vp = ((1/3) * vp[0]**(-3) + vp[1]**(-3) + vp[2]**(-3))**(-1/3)
+    return avg_vp*1000

@@ -35,9 +35,9 @@ def diffraction_plot(gb : AS, k_norm_list, Gamma_GBS_list, save = False):
     '''
     plt.figure()
     plt.xlabel(r'$k/k_{\mathrm{max}}$', fontsize=16)
-    plt.ylabel(r'$\Gamma \; \mathrm{(ns^{-1})}$', fontsize=16)
+    plt.ylabel(r'$\tau^{-1} \; \mathrm{(ns^{-1})}$', fontsize=16)
     plt.xlim([0,1])
-    plt.ylim([0,100])
+#    plt.ylim([0,100])
     plt.plot(k_norm_list, Gamma_GBS_list)
     if save:
         plt.savefig(gb['geom'] + '_' + str(gb['theta']) + '_diffraction.pdf', bbox_inches = 'tight')

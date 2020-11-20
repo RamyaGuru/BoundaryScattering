@@ -30,7 +30,7 @@ class ArrayScattering:
        geom = ['twist', 'tilt', 'twin']
        Initialize an ArrayScattering object with the crystal and microstructure inputs
     '''
-    def __init__(self, avg_vs, atmV: list, N, d_GS, bulkmod, nu, theta = None, ax = None, geom = 'tilt', amm = None, bvK = False, gruneisen = 1):
+    def __init__(self, avg_vs, atmV: list, N, d_GS, bulkmod, shearmod, nu, theta = None, ax = None, geom = 'tilt', amm = None, bvK = False, gruneisen = 1):
        if geom not in ['twist', 'tilt', 'heterointerface', 'twin']:
            raise ValueError('GB geometry value not valid')
        self.theta = theta
@@ -43,6 +43,7 @@ class ArrayScattering:
        self.b = (self.V * self.N) ** (1 / 3) 
        self.k_max = (6 * math.pi**2 / (self.V * self.N))**(1 / 3)
        self.bulkmod = bulkmod
+       self.shearmod = shearmod
        self.nu = nu
        self.bvK = bvK
        if self.bvK:
@@ -116,10 +117,9 @@ class ArrayScattering:
     def gb_energy(self):
         #using value of 0.23 for A like in Al2O3 paper..?
         theta = self.theta * (math.pi / 180)
-        RS_energy = self.bulkmod * self.b / (4 * math.pi * (1 - self.nu)) *\
-        theta * (1 + math.log(1 / (2 * math.pi)) - math.log(theta))
-        return RS_energy
-        
+        RS_energy = self.shearmod * self.b / (4 * math.pi * (1 - self.nu)) *\
+        theta * (0.23 - math.log(theta))
+        return RS_energy    
     
     '''
     Scattering Functions
@@ -192,10 +192,8 @@ class ArrayScattering:
         # Add back-scattering, sign=-1 and m=0. Omit forward scattering
         # sign = 1 and m=0 or (k_vector=kprime_vector) as this causes a
         # 0/0 indeterminate in the V1_twiddle_sqs.
-        #Omit this term for the twist boundary and heterointerface, as these terms
+        #Omit this m = 0 term, as these terms
         #are taken care of in a separate AMM term
-        if self.geom == 'tiltyyyy':
-            kprime_list.append([-kx, ky, kz])
         for m in m_values:
             for sign in [-1, 1]:
                 kprime_list.append([self.kxprime_msigma(kx, ky, m, sign), ky - self.qm(m), kz])

@@ -108,6 +108,7 @@ input_dict = {'avg_vs': 6084,
              'N': 2,
              'nu' : 0.29,
              'gruneisen' : 1,
+             'bulkmod' : 97.83
         }
 
 twist = ArrayScattering(**input_dict, geom = 'twist', theta = 2, ax = {'n' : 1, 'm' : 2}, d_GS = 350E-9)

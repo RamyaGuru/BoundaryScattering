@@ -39,10 +39,11 @@ mpl.rcParams['mathtext.bf'] = 'Apple Symbols'
 
 het = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020_2/heterointerfaceNonespectral_updatetau.npy')
 
-#To Compensate for factor of 2 error in integration!
-het[1] = het[1] / 2
-
 vs = (6084 + 5400) / 2
+#To Compensate for factor of 2 error in integration!
+het[1] = het[1] / 2 * (6084 / vs)
+
+
 V = 2E-29
 N = 2
 
@@ -81,7 +82,7 @@ Input values for Silicon and Germanium
 '''
 
 input_dict = {
-        'avg_vs': (6084 + 5400) / 2, #currently using average velocity between material 1 and material 2
+        'avg_vs': 6084, #5400, #(6084 + 5400) / 2, #currently using average velocity between material 1 and material 2
              'atmV': [1.97E-29, 2.27E-29],
              'N': 2,
              'bulkmod' : 97.83,
@@ -132,4 +133,31 @@ plt.savefig('hetint_tbc.pdf', bbox_inches = 'tight')
 
 #ax.yaxis.get_minor_formatter().set_scientific(False)
 #plt.yscale('log')
+
+'''
+Heterointerface with just the AMM term
+'''
+
+het_AMM = np.ones(99) * 0.1451776
+
+tbc_AMM = []
+Trange = [100, 150, 200, 300]
+
+for T in Trange:
+    transport = TT.transport_coeffs_from_tau(hetint, het[0] / hetint.vs, het_AMM, T)
+    tbc_AMM.append((1 / transport['TBC']) * 1E9)
+
+plt.figure()
+plt.plot(Trange, tbc_AMM, color = 'xkcd:darkish blue')
+plt.xlabel(r'T (K)', fontsize=16)
+plt.ylabel(r'$R_K$  (10$^{-9}$ m$^2$K/W)', fontsize=16)
+
+ax = plt.gca()
+#ax.set_yscale('log')
+#ax.yaxis.set_minor_formatter(mticker.ScalarFormatter())
+#ax.yaxis.get_minor_formatter().set_scientific(False)
+#ax.yaxis.get_minor_formatter().set_useOffset(False)
+ax.yaxis.set_major_formatter(mticker.FormatStrFormatter('%.1f'))
+ax.xaxis.set_major_formatter(mticker.FormatStrFormatter('%.0f'))
+plt.savefig('hetint_tbc_AMM.pdf', bbox_inches = 'tight')
 
