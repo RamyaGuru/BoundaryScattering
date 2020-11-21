@@ -5,7 +5,7 @@ Created on Sat Jun 27 14:25:15 2020
 
 @author: ramyagurunathan
 
-Tilt Scattering Update AMM
+Symmetric Tilt Boundary Scattering 
 
 """
 
@@ -48,6 +48,10 @@ Initialize input dictionary with Materials Project
 #Instantiate as object of ArrayScattering
 #tilt = AS(**input_dict, geom = 'tilt', theta = 5, ax = 1, d_GS = 350E-9)
 #amm = AMMTransport(cmat, density, input_dict['atmV'][0], input_dict['N'])
+
+'''
+Initialize from input dictionary
+'''
 
 def initialize(input_dict, cmat, density, theta, geom, ax = 1, d_GS = 350e-9):
     amm = AMMTransport(cmat, density, input_dict['atmV'][0], input_dict['N'])

@@ -1,7 +1,7 @@
 '''
-General Array Scattering Methods
+General Array Scattering Methods.
 
-These are for an interface perpendicular to the x-axis
+These are for an interface perpendicular to the x-axis.
 '''
 
 import math
@@ -18,7 +18,9 @@ kB = 1.38064852e-23
 
 
 class ArrayScattering:
-    '''   
+    '''  
+    Initialize an ArrayScattering object with the crystal and microstructure inputs
+    
     Inputs:
        theta: GB angle in degrees
        vs: avg. sound velocity
@@ -28,7 +30,6 @@ class ArrayScattering:
        ax: axis of dislocation spacing, x=0, y=1, z=2, dictionary for 'twist' or heterointerface'
        single value for 'tilt', none for twin
        geom = ['twist', 'tilt', 'twin']
-       Initialize an ArrayScattering object with the crystal and microstructure inputs
     '''
     def __init__(self, avg_vs, atmV: list, N, d_GS, bulkmod, shearmod, nu, theta = None, ax = None, geom = 'tilt', amm = None, bvK = False, gruneisen = 1):
        if geom not in ['twist', 'tilt', 'heterointerface', 'twin']:
@@ -71,10 +72,10 @@ class ArrayScattering:
     '''
     def k_mag(k_vector):
         '''
+        Calculate magnitude of the k-vector
+        
         Input: k_vector expressed as array or list of length 3
         Output: scalar magnitude value
-        Description:
-        Outputs magnitude of the k_vector
         '''
         return (k_vector[0]**2 + k_vector[1]**2 + k_vector[2]**2)**(1 / 2)
     
