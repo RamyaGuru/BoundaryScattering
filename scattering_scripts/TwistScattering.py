@@ -84,45 +84,6 @@ def initialize(input_dict, cmat, density, theta, geom, ax = 1, d_GS = 350e-9, bv
     amm = AMMTransport(cmat, density, input_dict['atmV'][0], input_dict['N'])
     twist = AS(**input_dict, geom = geom, amm = amm, theta = theta, ax = ax, d_GS = d_GS)
     return twist
-'''
-Rotation component:
-'''
-
-'''
-theta here is the misorientation angle WHERE IS THETA??
-inc: angle of incidence determined from the k-vector
-direction normal to the plane is the x-axis
-
-
-Change in velocity should come from misorientation angle rather than angle of incidence
-
-Modify to do christoffel calculation
-'''
-
-'''
-Alternate rotation potentials (previous tries)
-'''    
-    
-
-#Shouldn't the rotation be about x?
-def V_R_ch_snell(twist, k_vector):
-    kmag = helper.k_mag(k_vector)
-    knorm = k_vector / kmag
-#    theta1 = acos(k_vector[0]/kmag)
-    v1, v2, theta2 = twist.amm.vs_rot_Snell(knorm, helper.rot_tensor_x, twist.theta)
-#    print([v1, v2])
-#    if math.isnan(theta2):
-#        qx = -2 * k_vector[0]
-#        q_vector = [qx, 0, 0]
-#    else:
-#        qx = kmag * cos(theta2) - k_vector[0]
-#        q_vector = [qx, (k_vector[1] / sin(theta1)) * sin(theta2) - k_vector[1], (k_vector[2] / sin(theta1)) * sin(theta2) - k_vector[2]]
-#    print(-1 * np.dot(q_vector, k_vector))
-#    print((v2 - v1) / v1)
-    return abs(helper.hbar * abs(v2 - v1) * abs(kmag / k_vector[0]))**2 * (2 * k_vector[0]**2 / kmag**2)    
-#    return abs(helper.hbar * (abs(v2 - v1) / v1) * twist.vs * (kmag / (2 * k_vector[0])))**2 * (2 * k_vector[0]**2 / kmag**2)
-#    return abs(helper.hbar * (abs(v2 - v1) / v1) * twist.vs)**2 * (2 * k_vector[0]**2 / kmag**2)
-#    return abs(helper.hbar * (abs(v2 - v1) / v1) * (twist.omega_kmag(kmag) / (2 * k_vector[0])))**2 * (2 * k_vector[0]**2 / kmag**2) #replaced qx by 1/ Burger's vector (width of delta function scattering potential)
 
 
 '''
@@ -134,27 +95,7 @@ def V_tilde_sq_R(twist, k_vector):
     knorm = k_vector / kmag
     v1, v2, theta2 = twist.amm.vs_rot_Snell(knorm, helper.rot_tensor_x, twist.theta)
     return abs(helper.hbar * abs(v2 - v1) * abs(kmag / k_vector[0]))**2 * (2 * k_vector[0]**2 / kmag**2)
-#    return abs(helper.hbar * (abs(v2 - v1) / v1) * twist.vs * (kmag / (2 * k_vector[0])))**2 * (2 * k_vector[0]**2 / kmag**2)
     
-'''
-1950's Rotation Term
-'''
-
-def Gamma_AMM(twist, k_vector):
-    kmag = helper.k_mag(k_vector)
-    knorm = k_vector / kmag
-    theta1 = acos(k_vector[0]/kmag)
-    v1, v2, theta2 = twist.amm.vs_rot_Snell(knorm, helper.rot_tensor_x, twist.theta)
-    if math.isnan(theta2):
-        print('here')
-        a = 1E-10
-    else:
-        a = (4 * (v2 / v1) * (cos(theta2) / cos(theta1))) / ((v2/v1) + cos(theta2) / cos(theta1))**2
-#            a = (4*v1*v2*cos(theta1)*cos(theta2))/((v1*cos(theta1)\
-#                            + v2*cos(theta2))**2)
-    tau = (3/4) * a / ((1-a) * twist.vs * twist.n_1D)
-    print(a)
-    return tau**(-1) * 1E-9
 
 '''
 Strain components of the "n" array: Dislocaiton line in z, spacing in y
