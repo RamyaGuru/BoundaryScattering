@@ -68,7 +68,7 @@ input_dict = {'avg_vs': 6084,
              'gruneisen' : 1,
         }
 
-twist = AS(**input_dict, geom = 'twist', theta = 5, ax = {'n': 1, 'm' : 2}, d_GS = 350E-9, bvK = True)
+twist = AS(**input_dict, geom = 'twist', theta = 5, ax = {'n': 1, 'm' : 2}, d_GS = 350E-9)
 
 tbc1 = []
 tbc2 = []
@@ -118,7 +118,7 @@ md_color = scalarMap.to_rgba(11.42)
 
 m_list = ['^', 'x', '+']
 
-label_list = ['11.42$^{\circ}$', 'Ref. 6', 'Ref. 21', 'Ref. 4']
+label_list = ['11.42$^{\circ}$', 'Ref. 8', 'Ref. 22', 'Ref. 10']
 
 ax0.scatter([0], [0], marker = 'None', label = '11.42$^{\circ}$')
 
@@ -181,7 +181,7 @@ ax1.ticklabel_format(style="plain")
 
 
 
-fig.savefig('rk_T_pred_exp_MD.pdf', bbox_inches = 'tight')
+#fig.savefig('rk_T_pred_exp_MD.pdf', bbox_inches = 'tight')
 
 #%%
 
@@ -222,7 +222,7 @@ labels = {'1': [r'1$^{\circ}$', '19.6'],
 
 i=0
 for t in ['10', '7', '5', '2', '1']:
-    plt.plot(twist_dict[t][0] / (twist.vs * twist.k_max), twist_dict[t][1],\
+    plt.plot(twist_dict[t][0] / (twist.omegaD), twist_dict[t][1],\
              color = colors[i], label = labels[t][0] + r'; ' + labels[t][1] + ' nm')
     i = i+1
 
@@ -236,7 +236,7 @@ plt.ylabel(r'$\tau \; \mathrm{(ns)}$')
 mpl.rcParams['font.size'] = '10'
 #plt.colorbar(scalarMap, shrink = 0.7)
 plt.legend(loc = 'upper right', bbox_to_anchor = (1, 0.75), frameon = False)
-plt.savefig('twisttauspectral.pdf', bbox_inches = 'tight')
+#plt.savefig('twisttauspectral.pdf', bbox_inches = 'tight')
 
 
 
@@ -249,14 +249,14 @@ plt.figure()
 ax = plt.gca()
 i=0
 for t in ['10', '7', '5', '2', '1']:
-    plt.loglog(twist_dict[t][0] / (twist.vs * twist.k_max), twist_dict[t][1], color = colors[i], label = labels[t])
+    plt.loglog(twist_dict[t][0] / (twist.omegaD), twist_dict[t][1], color = colors[i], label = labels[t])
     i = i+1
 
 
 '''
 Plot the trend lines
 '''
-plt.loglog(twist10[0][50:] / (twist.vs * twist.k_max), twist10[1][50]*(twist10[0][50:]/twist10[0][50])**(-1.1) * 0.75, color = 'xkcd:black')
+plt.loglog(twist10[0][50:] / (twist.omegaD), twist10[1][50]*(twist10[0][50:]/twist10[0][50])**(-1.1) * 0.75, color = 'xkcd:black')
 #plt.loglog(twist1[0][50:] / (twist.vs * twist.k_max), twist1[1][50]*(twist1[0][50:]/twist1[0][50])**(-1) * 1.4, color = 'xkcd:black')
 mpl.rcParams['font.size'] = '10'
 #plt.colorbar(scalarMap, shrink = 0.7)
@@ -270,7 +270,7 @@ ax.xaxis.set_major_formatter(ticker.FormatStrFormatter('%.2f'))
 plt.xlabel('$\omega / \omega_{\mathrm{max}}$')
 plt.ylabel(r'$\tau \; \mathrm{(ns)}$', labelpad = 0)
 
-plt.savefig('loglog_twisttau.pdf', bbox_inches = 'tight')
+#plt.savefig('loglog_twisttau.pdf', bbox_inches = 'tight')
 
 '''
 Plot the Read Shockley Energy versus the interfacial thermal resistance
@@ -302,18 +302,11 @@ Tot_energy = []
 Tot_energy2 = []
 
 for t in theta:
-    as_obj = AS(**input_dict, geom = 'tilt', theta = t, ax = 1, d_GS = 350E-9, bvK = True)
+    as_obj = AS(**input_dict, geom = 'tilt', theta = t, ax = 1, d_GS = 350E-9)
     Strain_energy.append(AS.gb_energy(as_obj))
     Tot_energy.append(AS.gb_energy(as_obj))
 
-angles = []
-i = 1
-for t in range(1, 90):
-    as_obj = AS(**input_dict, geom = 'tilt', theta = t, ax = 1, d_GS = 350E-9, bvK = True)
-    Strain_energy2.append(AS.gb_energy_strain_RH(as_obj))
-    Tot_energy2.append(AS.gb_energy_tot_RH(as_obj))
-    angles.append(i)
-    i = i+1
+
 
 plt.rcParams["figure.figsize"] = [5, 3]
 plt.figure()
@@ -328,7 +321,7 @@ ax = plt.gca()
 plt.ylabel(r'$R_K$ (m$^2$K/GW)')
 plt.xlabel(r'Interfacial Energy (J/m$^2)$')
 ax.text(0.91, 0.14, r'$\mathrm{\theta}$', verticalalignment = 'center', horizontalalignment = 'center', transform = ax.transAxes, color = 'xkcd:black', fontsize = 20, weight = 'bold')
-plt.savefig('TBR_energy.pdf', bbox_inches = 'tight')
+#plt.savefig('TBR_energy.pdf', bbox_inches = 'tight')
 
 
 '''
@@ -339,7 +332,7 @@ fig, ax1 = plt.subplots()
 
 color = 'xkcd:blood red'
 ax1.set_xlabel(r'Twist Angle $\theta$')
-ax1.set_ylabel('Interfacial Energy')
+ax1.set_ylabel('Interfacial Energy (J/m$^2$)')
 ax1.plot(theta, Tot_energy, color = color)
 #ax1.plot(angles, Tot_energy2, color = color, linestyle = ':')
 ax1.tick_params(axis='y', labelcolor=color)

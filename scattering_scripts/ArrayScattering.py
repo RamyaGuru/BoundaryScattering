@@ -109,7 +109,13 @@ class ArrayScattering:
         Input: k_vector
         Output: group velocity (scalar)
         '''  
-        return self.vs
+        omega0 = (2 / math.pi) * self.vs * self.k_max
+        if self.bvK:
+            vg = omega0 * (math.pi / (2 * self.k_max)) *\
+            math.cos(math.pi * kmag / (2 * self.k_max))
+        else:
+            vg = self.vs
+        return vg
     
     
     '''
@@ -290,6 +296,7 @@ class ArrayScattering:
         return (self.n_1D / (hbar ** 2 * self.D ** 2 * self.vg_kmag(k) * k)) * running_sum  
     
     def GammaArray_rot(self, k_vector, V_twiddle_R):
-        gamma = (self.n_1D / (hbar ** 2 * self.vs)) * V_twiddle_R(self, k_vector)
+        k = ArrayScattering.k_mag(k_vector)
+        gamma = (self.n_1D / (hbar ** 2 * self.vg_kmag(k))) * V_twiddle_R(self, k_vector)
         return gamma
     

@@ -155,7 +155,6 @@ def tbc_T_old(Gamma, gb : AS, n_k, n_angle, T):
     return (1/4)*tbc_int    
 
 
-
 def calculate_spectral_props(gb : AS, Gamma, prop_list = ['tau', 'transmissivity', 'TBC', 'kappa'],\
                              function = {'tau' : tau_spectral, 'transmissivity' : transmissivity_spectral,
                 'TBC' : tbc_spectral, 'kappa' : kL_spectral},
