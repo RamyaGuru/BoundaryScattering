@@ -37,11 +37,11 @@ mpl.rcParams['mathtext.fontset'] = 'custom'
 
 mpl.rcParams['mathtext.bf'] = 'Apple Symbols'
 
-het = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020_2/heterointerfaceNonespectral_updatetau.npy')
+het = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020_update_bvK/heterointerfaceNonespectral_update2tau.npy')
 
 vs = (6084 + 5400) / 2
 #To Compensate for factor of 2 error in integration!
-het[1] = het[1] / 2
+het[1] = het[1]
 
 
 V = 2E-29
@@ -86,7 +86,7 @@ density2 = 5323
 geom = 'heterointerface'
 
 hetint = HS.initialize(input_dict, cmat = [cmat1, cmat2], density = [density1, density2],\
-                     geom = geom)
+                     geom = geom, bvK = True)
 
 
 
@@ -123,6 +123,7 @@ Thermal Boundary Resistance
 '''
 
 tbc = []
+wtau = []
 Trange = [100, 150, 200, 300]
 n_k = 100
 dk = hetint.k_max / n_k
@@ -131,7 +132,7 @@ k_mags = np.arange(dk, hetint.k_max, dk)
 for T in [100, 150, 200, 300]:
     transport = TT.transport_coeffs_from_tau(hetint, het[0] / hetint.vs, het[1], T)
     tbc.append((1 / transport['TBC']) * 1E9)
-
+    wtau.append(transport['wtd_tau'])
 mpl.rcParams['font.size'] = '16'
 
 plt.figure()
@@ -153,7 +154,7 @@ ax.xaxis.set_major_formatter(mticker.FormatStrFormatter('%.0f'))
 #plt.yscale('log')
 
 '''
-Heterointerface with just the AMM term
+Heterointerface with just the AMM term : TBC
 '''
 
 tbc_AMM = []
@@ -162,7 +163,18 @@ Trange = [100, 150, 200, 300]
 for T in Trange:
     transport = TT.transport_coeffs_from_tau(hetint, k_mags, het_AMM, T)
     tbc_AMM.append((1 / transport['TBC']) * 1E9)
+    
+'''
+Heterointerface with just AMM term : Russian doll tau
+'''
+wtau_AMM = []
+Trange = [100, 150, 200, 300]
 
+for T in Trange:
+    transport = TT.transport_coeffs_from_tau(hetint, k_mags, het_AMM, T)
+    wtau_AMM.append(transport['wtd_tau'])
+
+print(np.array(wtau) / np.array(wtau_AMM))
 
 plt.plot(Trange, tbc_AMM, linestyle = ':', color = 'xkcd:darkish blue', label = 'Acoustic mismatch only')
 plt.xlabel(r'T (K)', fontsize=16)

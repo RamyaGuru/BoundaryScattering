@@ -44,13 +44,13 @@ mpl.rcParams['mathtext.bf'] = 'Apple Symbols'
 Load relaxation times
 '''
 
-twist1 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020_2/twist1spectral_updatetau.npy')
+twist1 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020_update_bvK/twist1spectral_update2tau.npy')
 twist2 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020_2/twist2spectral_updatetau.npy')
-twist3 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020_2/twist3spectral_updatetau.npy')
+twist3 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020_update_bvK/twist3spectral_update2tau.npy')
 twist5 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020_2/twist5spectral_updatetau.npy')
-twist7 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020_2/twist7spectral_updatetau.npy')
+twist7 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020_update_bvK/twist7spectral_update2tau.npy')
 twist8 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020_2/twist8spectral_updatetau.npy')
-twist10 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020_2/twist10spectral_updatetau.npy')
+twist10 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020_update_bvK/twist10spectral_update2tau.npy')
 twist15 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020_2/twist15spectral_updatetau.npy')
 
 '''
@@ -68,7 +68,7 @@ input_dict = {'avg_vs': 6084,
              'gruneisen' : 1,
         }
 
-twist = AS(**input_dict, geom = 'twist', theta = 5, ax = {'n': 1, 'm' : 2}, d_GS = 350E-9)
+twist = AS(**input_dict, geom = 'twist', theta = 5, ax = {'n': 1, 'm' : 2}, d_GS = 350E-9, bvK = False)
 
 tbc1 = []
 tbc2 = []
@@ -359,3 +359,20 @@ for t, tbc in zip([twist1_amm, twist3_amm, twist7_amm, twist10_amm], [tbc1, tbc3
         transport = TT.transport_coeffs_from_tau(twist, twist1[0] / twist.vs, t, T)
         tbc_AMM.append((1 / transport['TBC']) * 1E9)
     print(np.array(tbc_AMM) / np.array(tbc))
+    
+'''
+Get the AMM contribution to the Russian Doll relaxation time
+'''
+twist1_amm = np.ones(100) * twist1[1][0]
+twist3_amm = np.ones(100) * twist3[1][0]
+twist7_amm = np.ones(100) * twist7[1][0]
+twist10_amm = np.ones(100) * twist10[1][0]
+
+for t, wtau in zip([twist1_amm, twist3_amm, twist7_amm, twist10_amm], [trans['wtd_tau'] for trans in [transport1,\
+                   transport3, transport7, transport10]]):
+    wtau_AMM = []
+    for T in [100, 150,200,250,300, 500]:
+        transport = TT.transport_coeffs_from_tau(twist, twist1[0] / twist.vs, t, T)
+        wtau_AMM.append(transport['wtd_tau'])
+    print(np.array(wtau) / np.array(wtau_AMM))
+    

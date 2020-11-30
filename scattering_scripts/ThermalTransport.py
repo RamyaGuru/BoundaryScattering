@@ -227,21 +227,26 @@ def transport_coeffs_from_tau(gb : AS, k_list, tau_spectral, T, save = False):
     '''
     kappa = 0
     TBC = 0
+    prefix = 0
     alpha = []
     dk =  gb.k_max / len(k_list)
     for tau, k in zip(tau_spectral, k_list):
         vg = gb.vg_kmag(k)
         Cv_s = Cv(k, T, gb.omega_kmag(k))
         kappa = kappa + Cv_s * vg**2 * tau * 1E-9 * dk
+        prefix = prefix + Cv_s * vg**2 * dk        
         a = (vg * tau * 1E-9 * gb.n_1D) / ((3/4) + (vg * tau * 1E-9 * gb.n_1D))
         alpha.append(a)
         TBC = TBC + a * vg * Cv_s * dk
 #        TBC = TBC + (a / (1 - a)) * vg * Cv_s * dk
-    transport = {'kappa': kappa / 3, 'TBC' : TBC / 4, 'spectral_alpha': alpha}
+    wtd_tau = kappa / prefix
+    transport = {'kappa': kappa / 3, 'TBC' : TBC / 4, 'spectral_alpha': alpha,\
+                 'wtd_tau' : wtd_tau}
     if save:
         np.savez('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/' +\
                  str(gb.geom) + str(gb.theta) + 'transport' + str(T) + '.npz')
     return transport
+
 
 # add method to get the thermal boundary conductance from a scalar transmissivity value    
 
