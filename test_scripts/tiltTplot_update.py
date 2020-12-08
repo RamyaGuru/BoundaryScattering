@@ -61,6 +61,7 @@ input_dict = {'avg_vs': 6084,
              'atmV': [2E-29],
              'N': 2,
              'bulkmod' : 97.83E9,
+             'shearmod' : 20E9,
              'nu' : 0.29,
              'gruneisen' : 1,
         }
@@ -72,20 +73,39 @@ twist = AS(**input_dict, geom = 'twist', theta = 5, ax = {'n' : 1, 'm' : 2}, d_G
 tbc1 = []
 tbc5 = []
 
+ttbc1 = []
+
+
+ttbc5 = []
+
 for T in [100, 150,200,250,300]:
     transport1 = TT.transport_coeffs_from_tau(tilt, tilt1[0] / tilt.vs, tilt1[1], T)
     transport5 = TT.transport_coeffs_from_tau(tilt, tilt5[0] / tilt.vs, tilt5[1], T)
     tbc1.append((1 / transport1['TBC']) * 1E9)
     tbc5.append((1 / transport5['TBC']) * 1E9)
+    ttransport1 = TT.transport_coeffs_from_tau(twist, twist1[0] / twist.vs, twist1[1], T)
+    ttransport5 = TT.transport_coeffs_from_tau(twist, twist5[0] / twist.vs, twist5[1], T)
+    ttbc1.append((1 / ttransport1['TBC']) * 1E9)
+    ttbc5.append((1 / ttransport5['TBC']) * 1E9)
+
+
+plt.rcParams["figure.figsize"] = [5, 3]
+
+mpl.rcParams['font.size'] = '14'
 
 plt.figure()
 
+colors = ['xkcd:dark cyan','xkcd:grass']
+
 i = 0
-for tbc in [tbc5, tbc1]:
-    plt.plot([100,150,200,250,300], tbc, '-o', label = labels[i])
+for tbc, ttbc in zip([tbc5, tbc1], [ttbc5, ttbc1]):
+    plt.plot([100,150,200,250,300], tbc, ':', color = colors[i])
+    plt.plot([100,150,200,250,300], ttbc, color = colors[i])
     i = i+1
-    
-plt.legend()
+
+plt.ylabel(r'$R_K$  (10$^{-9}$ m$^2$K/W)')
+plt.xlabel('T (K)') 
+plt.savefig('tilt_twist_tbc.pdf', bbox_inches = 'tight')   
 
 '''
 Spectral Tau Plots

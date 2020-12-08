@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Sep 15 09:53:26 2020
+Created on Wed Dec  2 10:31:02 2020
 
 @author: ramyagurunathan
 
-Heterointerface Plots
+Heterointerface with the updated TBC expression
 """
 
 import sys
@@ -51,16 +51,29 @@ k_max = (6 * math.pi**2 / (V * N))**(1 / 3)
 dk = k_max / 100
 
 omega = vs * np.arange(dk, k_max, dk)
-ax = plt.axes()
+
 
 
 
 '''
-Input values for Silicon and Germanium
+Input values for Silicon
 '''
 
-input_dict = {
-        'avg_vs': (6084 + 5400) / 2, #currently using average velocity between material 1 and material 2
+input_dict1 = {
+        'avg_vs': 6084, #currently using average velocity between material 1 and material 2
+             'atmV': [1.97E-29, 2.27E-29],
+             'N': 2,
+             'bulkmod' : 97.83,
+             'shearmod' : 60,
+             'nu' : 0.29,
+             'gruneisen' : 1,
+        }
+
+'''
+Input values for Germanium
+'''
+input_dict2 = {
+        'avg_vs': 5400, #currently using average velocity between material 1 and material 2
              'atmV': [1.97E-29, 2.27E-29],
              'N': 2,
              'bulkmod' : 97.83,
@@ -85,52 +98,28 @@ density2 = 5323
 
 geom = 'heterointerface'
 
-hetint = HS.initialize(input_dict, cmat = [cmat1, cmat2], density = [density1, density2],\
-                     geom = geom, bvK = True)
+het1 = HS.initialize(input_dict1, cmat = [cmat1, cmat2], density = [density1, density2],\
+                     geom = geom)
 
+het2 = HS.initialize(input_dict2, cmat = [cmat1, cmat2], density = [density1, density2],\
+                     geom = geom)
 
-
-'''
-Spectral Relaxation Time
-'''
-het_AMM = np.ones(99) * het[1][0]
-#omega_max = (2 / math.pi) * (vs * k_max)
-omega_max = vs * k_max
-
-plt.plot(het[0] / hetint.omegaD, het[1], color = 'xkcd:darkish blue', label = 'Full model')
-plt.xlabel('$\omega / \omega_{\mathrm{max}}$', fontsize=16)
-plt.ylabel(r'$\tau \; \mathrm{(ns)}$', fontsize=16)
-
-#AMM Only
-plt.plot(het[0] / hetint.omegaD, het_AMM, color = 'xkcd:darkish blue', linestyle = ':', label = 'Acoustic mismatch only')
-
-mpl.rcParams['font.size'] = '12'
-plt.legend(loc = 'bottom left',  frameon = False)
-
-ax = plt.gca()
-#ax.set_xscale('log')
-#ax.set_yscale('log')
-ax.yaxis.set_minor_formatter(mticker.ScalarFormatter())
-ax.yaxis.get_minor_formatter().set_scientific(False)
-ax.yaxis.get_minor_formatter().set_useOffset(False)
-ax.yaxis.set_major_formatter(mticker.FormatStrFormatter('%.3f'))
-ax.xaxis.set_major_formatter(mticker.FormatStrFormatter('%.1f'))
-plt.savefig('hetint_tauspectral.pdf', bbox_inches = 'tight')
 
 
 '''
 Thermal Boundary Resistance
 '''
+het_AMM = np.ones(99) * het[1][0]
 
 tbc = []
 wtau = []
 Trange = [100, 150, 200, 300]
 n_k = 100
-dk = hetint.k_max / n_k
-k_mags = np.arange(dk, hetint.k_max, dk)
+dk = het1.k_max / n_k
+k_mags = np.arange(dk, het1.k_max, dk)
 
 for T in [100, 150, 200, 300]:
-    transport = TT.transport_coeffs_from_tau(hetint, k_mags, het[1], T)
+    transport = TT.transport_coeffs_from_tau_het(het1, het2, k_mags, het[1], T)
     tbc.append((1 / transport['TBC']) * 1E9)
     wtau.append(transport['wtd_tau'])
 mpl.rcParams['font.size'] = '16'
@@ -161,7 +150,7 @@ tbc_AMM = []
 Trange = [100, 150, 200, 300]
 
 for T in Trange:
-    transport = TT.transport_coeffs_from_tau(hetint, k_mags, het_AMM, T)
+    transport = TT.transport_coeffs_from_tau_het(het1, het2, k_mags, het_AMM, T)
     tbc_AMM.append((1 / transport['TBC']) * 1E9)
  
 print(np.array(tbc_AMM) / np.array(tbc))
@@ -172,7 +161,7 @@ wtau_AMM = []
 Trange = [100, 150, 200, 300]
 
 for T in Trange:
-    transport = TT.transport_coeffs_from_tau(hetint, k_mags, het_AMM, T)
+    transport = TT.transport_coeffs_from_tau_het(het1, het2, k_mags, het_AMM, T)
     wtau_AMM.append(transport['wtd_tau'])
 
 print(np.array(wtau) / np.array(wtau_AMM))
@@ -188,7 +177,7 @@ ax = plt.gca()
 #ax.yaxis.get_minor_formatter().set_useOffset(False)
 ax.yaxis.set_major_formatter(mticker.FormatStrFormatter('%.1f'))
 ax.xaxis.set_major_formatter(mticker.FormatStrFormatter('%.0f'))
-#plt.savefig('hetint_tbc.pdf', bbox_inches = 'tight')
+plt.savefig('hetint_tbc_bvK.pdf', bbox_inches = 'tight')
 
 '''
 Plot the group velocity
@@ -196,7 +185,7 @@ Plot the group velocity
 vg = np.zeros(n_k - 1)
 i = 0
 for k in k_mags:
-    vg[i] = hetint.vg_kmag(k)
+    vg[i] = het1.vg_kmag(k)
     i = i+1
 
 plt.figure()

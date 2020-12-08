@@ -237,8 +237,8 @@ def transport_coeffs_from_tau(gb : AS, k_list, tau_spectral, T, save = False):
         prefix = prefix + Cv_s * vg**2 * dk        
         a = (vg * tau * 1E-9 * gb.n_1D) / ((3/4) + (vg * tau * 1E-9 * gb.n_1D))
         alpha.append(a)
-        TBC = TBC + a * vg * Cv_s * dk
-#        TBC = TBC + (a / (1 - a)) * vg * Cv_s * dk
+#        TBC = TBC + a * vg * Cv_s * dk
+        TBC = TBC + (a / (1 - a)) * vg * Cv_s * dk
     wtd_tau = kappa / prefix
     transport = {'kappa': kappa / 3, 'TBC' : TBC / 4, 'spectral_alpha': alpha,\
                  'wtd_tau' : wtd_tau}
@@ -247,7 +247,32 @@ def transport_coeffs_from_tau(gb : AS, k_list, tau_spectral, T, save = False):
                  str(gb.geom) + str(gb.theta) + 'transport' + str(T) + '.npz')
     return transport
 
-
+def transport_coeffs_from_tau_het(gb1 : AS, gb2 : AS, k_list, tau_spectral, T, save = False):
+    '''
+    Return the thermal conductivity and TBC from the spectral tau array
+    '''
+    kappa = 0
+    TBC = 0
+    prefix = 0
+    alpha = []
+    dk =  gb1.k_max / len(k_list)
+    for tau, k in zip(tau_spectral, k_list):
+        vg = gb1.vg_kmag(k)
+        vg2 = gb2.vg_kmag(k)
+        Cv_s = Cv(k, T, gb1.omega_kmag(k))
+        kappa = kappa + Cv_s * vg**2 * tau * 1E-9 * dk
+        prefix = prefix + Cv_s * vg**2 * dk        
+        a1 = (vg * tau * 1E-9 * gb1.n_1D) / ((3/4) + (vg * tau * 1E-9 * gb1.n_1D))
+        a2 = (vg2 * tau * 1E-9 * gb1.n_1D) / ((3/4) + (vg2 * tau * 1E-9 * gb1.n_1D))
+        alpha.append(a1)
+        TBC = TBC + (a1 / (1 - 0.5 * (a1 + a2))) * vg * Cv_s * dk
+    wtd_tau = kappa / prefix
+    transport = {'kappa': kappa / 3, 'TBC' : TBC / 4, 'spectral_alpha': alpha,\
+                 'wtd_tau' : wtd_tau}
+    if save:
+        np.savez('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/' +\
+                 str(gb1.geom) + str(gb1.theta) + 'transport' + str(T) + '.npz')
+    return transport
 # add method to get the thermal boundary conductance from a scalar transmissivity value    
 
 #def tbc_from_alpha(amm : AMM, alpha, n_k, T):

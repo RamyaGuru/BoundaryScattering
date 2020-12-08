@@ -20,6 +20,7 @@ from mpl_toolkits.mplot3d.axes3d import Axes3D
 import matplotlib as mpl
 
 mpl.rcParams['font.size'] = '14'
+mpl.rcParams.update({'figure.autolayout': True})
 '''
 Inputs
 '''
@@ -44,10 +45,11 @@ def Y(y):
     return y / p
 
 def sigma_xx(x, y):
-    term1 = -bx * sin(2 * pi * Y(y)) * (2 * pi * X(x) * sinh(2 * pi * X(x)) +\
-                     cosh(2 * pi * X(x))- cos(2 * pi * Y(y)))
+    term1 = -bx * sin(2 * pi * Y(y)) * ((2 * pi * X(x) * sinh(2 * pi * X(x)) +\
+                     cosh(2 * pi * X(x))- cos(2 * pi * Y(y))) /\
+                      (cosh(2 * pi * X(x)) - cos(2 * pi * Y(y)))**2)
     term2 = by * 2 * pi * X(x) * ((cosh(2 * pi * X(x)) * cos(2 * pi * Y(y)) - 1) /\
-                           (cosh(2 * pi * X(x)) * cos(2 * pi * Y(y)))**2)
+                           (cosh(2 * pi * X(x)) - cos(2 * pi * Y(y)))**2)
     return (mu / (2 * (1 - nu) * p)) * (term1 + term2)
 
 def sigma_yy(x, y):
@@ -66,37 +68,84 @@ def sigma_yx(x, y):
                      cosh(2 * pi * X(x))- cos(2 * pi * Y(y)))
     return (mu / (2 * (1 - nu) * p)) * (term1 + term2)
 
+def eps_yy(x,y):
+    sigyy = sigma_yy(x,y)
+    sigxx = sigma_xx(x,y)
+    epsyy = (1 / (2 * mu))*((1 - nu) * sigyy - nu * sigxx)
+    return epsyy
+
 if __name__ == '__main__':
-    xlim = 6
+#    '''
+#    Stress Plots
+#    '''
+#    xlim = 6
+#    ylim = 6
+#    nelem = 1000
+#    x = np.linspace(-xlim,xlim,nelem)
+#    y = np.linspace(-ylim,ylim,nelem)
+#    Xax, Yax = np.meshgrid(x,y)
+#    sigmaxx = np.zeros([0, nelem])
+#    for why in y:
+#        sigmaxx_zet = sigma_yy(x, why)
+#        sigmaxx_zet = np.transpose(sigmaxx_zet.reshape(nelem,1))
+#        sigmaxx = np.append(sigmaxx, sigmaxx_zet, axis = 0)
+#    
+#    fig = plt.figure()
+#    ax = Axes3D(fig)
+#    ax = plt.axes(projection='3d')
+#    sigmaxx[sigmaxx > 0.5 * mu] = 0.5 * mu
+#    sigmaxx[sigmaxx < -0.5 * mu] = -0.5 * mu
+#    ax.plot_surface(Yax, Xax, sigmaxx / mu, cmap = 'coolwarm')
+#    ax.set_zlim3d(-0.5, 0.5)
+#    ax.view_init(elev = 20, azim = -20)
+#    ax.set_xlabel('y (nm)')
+#    ax.set_ylabel('x (nm)', labelpad = 10)
+#    ax.set_zlabel(r'$\sigma_{yy}/\mu$')
+#    plt.tight_layout()
+#    plt.savefig('misfit_disl_schem.pdf', bbox_inches = 'tight')
+#    '''
+#    Cross-section figure
+#    '''
+#    plt.figure()
+#    plt.plot(x, sigmaxx[120,:] / mu, 'xkcd:black')
+#    plt.xlabel('x')
+#    plt.ylabel(r'$\sigma_{yy}/\mu$')
+#    plt.savefig('misfit_disl_xsection.pdf', bbox_inches = 'tight')
+    
+    '''
+    Strain Plots
+    '''
+    xlim = 4
     ylim = 6
     nelem = 1000
     x = np.linspace(-xlim,xlim,nelem)
     y = np.linspace(-ylim,ylim,nelem)
     Xax, Yax = np.meshgrid(x,y)
-    sigmaxx = np.zeros([0, nelem])
+    epsxx = np.zeros([0, nelem])
     for why in y:
-        sigmaxx_zet = sigma_yy(x, why)
-        sigmaxx_zet = np.transpose(sigmaxx_zet.reshape(nelem,1))
-        sigmaxx = np.append(sigmaxx, sigmaxx_zet, axis = 0)
+        epsxx_zet = eps_yy(x, why)
+        epsxx_zet = np.transpose(epsxx_zet.reshape(nelem,1))
+        epsxx = np.append(epsxx, epsxx_zet, axis = 0)
     
     fig = plt.figure()
+    plt.tight_layout()
+    plt.rcParams["figure.figsize"] = [4.5, 3]
     ax = Axes3D(fig)
     ax = plt.axes(projection='3d')
-    sigmaxx[sigmaxx > 0.5 * mu] = 0.5 * mu
-    sigmaxx[sigmaxx < -0.5 * mu] = -0.5 * mu
-    ax.plot_surface(Yax, Xax, sigmaxx / mu, cmap = 'coolwarm')
-    ax.set_zlim3d(-0.5, 0.5)
-    ax.view_init(elev = 20, azim = -20)
+    epsxx[epsxx > 0.2] = 0.2
+    epsxx[epsxx < -0.2] = -0.2
+    ax.plot_surface(Yax, Xax, epsxx, cmap = 'coolwarm')
+    ax.set_zlim3d(-0.2, 0.2)
+    ax.view_init(elev = 20, azim = -30)
     ax.set_xlabel('y (nm)')
     ax.set_ylabel('x (nm)', labelpad = 10)
-    ax.set_zlabel(r'$\sigma_{yy}/\mu$')
-    plt.tight_layout()
-    plt.savefig('misfit_disl_schem.pdf', bbox_inches = 'tight')
+    ax.set_zlabel(r'$\epsilon_{yy}$')
+    plt.savefig('misfit_disl_strain.pdf', bbox_inches = 'tight')
     '''
     Cross-section figure
     '''
     plt.figure()
-    plt.plot(x, sigmaxx[120,:] / mu, 'xkcd:black')
+    plt.plot(x, epsxx[120,:], 'xkcd:black')
     plt.xlabel('x')
-    plt.ylabel(r'$\sigma_{yy}/\mu$')
-    plt.savefig('misfit_disl_xsection.pdf', bbox_inches = 'tight')
+    plt.ylabel(r'$\epsilon_{yy}$')
+    plt.savefig('misfit_disl_xc_strain.pdf', bbox_inches = 'tight')    
