@@ -27,6 +27,7 @@ import numpy as np
 from math import asin, acos, pi, sin, cos, tan, atan
 import helper
 from AMMTransport import AMMTransport
+import time
 
 np.seterr(divide='raise', invalid="raise")
 
@@ -63,6 +64,7 @@ input_dict = {'avg_vs': 6084,
              'atmV': [2E-29],
              'N': 2,
              'bulkmod' : 97.83,
+             'shearmod' : 60,
              'nu' : 0.29,
              'gruneisen' : 1,
         }
@@ -83,6 +85,12 @@ Initialize input dictionary with Materials Project
 def initialize(input_dict, cmat, density, theta, geom, ax = 1, d_GS = 350e-9, bvK = True):
     amm = AMMTransport(cmat, density, input_dict['atmV'][0], input_dict['N'])
     twist = AS(**input_dict, geom = geom, amm = amm, theta = theta, ax = ax, d_GS = d_GS)
+    return twist
+
+def initialize_phph(input_dict, avgM, cmat, density, theta, geom, ax = 1, d_GS = 350e-9, bvK = True):
+    amm = AMMTransport(cmat, density, input_dict['atmV'][0], input_dict['N'])
+    twist = AS(**input_dict, geom = geom, amm = amm, theta = theta, ax = ax, d_GS = d_GS)
+    twist.avgM = avgM
     return twist
 
 
@@ -146,6 +154,13 @@ def Gamma_GBS_rot(twist, k_vector, kprime_yvectors, kprime_zvectors):
           ,twist.GammaArray_rot(k_vector, V_tilde_sq_R)]
    return sum(tot)
 
+
+def Gamma_GBS_phph(twist, k_vector, kprime_yvectors, kprime_zvectors, gruneisen = 1, T = 300):
+    tot = [twist.GammaArray(k_vector, kprime_yvectors, V_twiddle_sq_n, twist.ax['n']) \
+          ,twist.GammaArray(k_vector, kprime_zvectors, V_twiddle_sq_m, twist.ax['m']) \
+          ,twist.GammaArray_rot(k_vector, V_tilde_sq_R), twist.Gamma_phph(k_vector, gruneisen, T)]
+    return sum(tot)
+
 def Gamma_GBS_rot_only(twist, k_vector, kprime_yvectors, kprime_zvectors):
     return twist.GammaArray_rot(k_vector, V_tilde_sq_R) #twist.GammaArray_rot(k_vector, V_R_ch_snell)
           
@@ -158,7 +173,12 @@ def Gamma_rot(twist, k_vector):
 def Gamma_rot_only(twist, k_vector):
     return Gamma_GBS_rot_only(twist, k_vector, twist.kprimes_y(k_vector), twist.kprimes_z(k_vector)) * 1E-9
 
-def calculate_Gammas(twist, n_k):
+
+def Gamma_phph(twist, k_vector):
+    return Gamma_GBS_phph(twist, k_vector,  twist.kprimes_y(k_vector), twist.kprimes_z(k_vector)) * 1E-9
+    
+
+def calculate_Gammas(twist, n_k, gamma_fxn = Gamma_phph):
     dk = twist.k_max / n_k
     k_mags = np.arange(dk, twist.k_max, dk)
     k_norm = k_mags / twist.k_max
@@ -167,19 +187,22 @@ def calculate_Gammas(twist, n_k):
         k_vectors.append([k, 0, 0]) #all same direction...
     Gamma_GBS_list = []
     for k_vector in k_vectors:
-        Gamma_GBS_list.append(Gamma_rot(k_vector))
+        Gamma_GBS_list.append(gamma_fxn(twist, k_vector))
     return [k_norm, Gamma_GBS_list]    
 
 
 if __name__ == "__main__":
     theta = 12
-    twist = initialize(input_dict, cmat, density, theta, geom = 'twist', ax = ax, d_GS = d_GS)
-#    Gamma_list = calculate_Gammas(200)
-#    SPlt.diffraction_plot(twist, Gamma_list[0], Gamma_list[1])
-    SPlt.convergence_tau_plot(twist, Gamma_rot, 150, T = 300)
-#    spectral = TT.calculate_spectral_props(twist, Gamma_rot_only, prop_list = ['tau'],\
-#                                        n_angle = 200, n_k = 10, T = 300) #n_angle = 200, n_k = 100
-#    SPlt.spectral_plots(twist, spectral, prop_list = ['tau'], save = True)
+    atmM = 28.085
+    twist = initialize_phph(input_dict, atmM, cmat, density, theta, geom = 'twist', ax = ax, d_GS = d_GS)
+    Gamma_list = calculate_Gammas(twist, 20)
+    SPlt.diffraction_plot(twist, Gamma_list[0], Gamma_list[1])
+#    start_time = time.time()
+#    SPlt.convergence_tau_plot(twist, Gamma_rot, 150, T = 300)
+#    print("--- %s seconds ---" % (time.time() - start_time))
+    spectral = TT.calculate_spectral_props(twist, Gamma_rot_only, prop_list = ['kappa'],\
+                                        n_angle = 10, n_k = 10, T = 300) #n_angle = 200, n_k = 100
+    SPlt.spectral_plots(twist, spectral, prop_list = ['tau'], save = True)
 #    temp_dependence = TT.calculate_temperature_dependence(twist, Gamma, temp_list = [100, 800])
 
 

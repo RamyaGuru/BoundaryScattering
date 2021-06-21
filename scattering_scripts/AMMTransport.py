@@ -90,7 +90,6 @@ class AMMTransport():
         vp1 = self.ch_obj.get_phase_velocity()
         vp1 = h.average_phase_velocity(vp1)
         vs1 = h.average_group_velocity(vs1) #a
-        print([vs1,vp1])
         self.ch_obj.rotate_tensor(rot_tensor_method(theta / 2))
         self.ch_obj.set_direction_cartesian(k_norm)
         vs2 = self.ch_obj.get_group_velocity()

@@ -37,7 +37,7 @@ mpl.rcParams['mathtext.fontset'] = 'custom'
 
 mpl.rcParams['mathtext.bf'] = 'Apple Symbols'
 
-het = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020_update_bvK/heterointerfaceNonespectral_update2tau.npy')
+het = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020_2/heterointerfaceNonespectral_updatetau.npy')
 
 vs = (6084 + 5400) / 2
 
@@ -115,6 +115,7 @@ ax.yaxis.get_minor_formatter().set_scientific(False)
 ax.yaxis.get_minor_formatter().set_useOffset(False)
 ax.yaxis.set_major_formatter(mticker.FormatStrFormatter('%.3f'))
 ax.xaxis.set_major_formatter(mticker.FormatStrFormatter('%.1f'))
+ax.set_ylim(0.01,0.03)
 plt.savefig('hetint_tauspectral.pdf', bbox_inches = 'tight')
 
 
@@ -147,7 +148,7 @@ ax = plt.gca()
 #ax.yaxis.get_minor_formatter().set_useOffset(False)
 ax.yaxis.set_major_formatter(mticker.FormatStrFormatter('%.1f'))
 ax.xaxis.set_major_formatter(mticker.FormatStrFormatter('%.0f'))
-plt.savefig('hetint_tbc.pdf', bbox_inches = 'tight')
+#plt.savefig('hetint_tbc.pdf', bbox_inches = 'tight')
 
 
 #ax.yaxis.get_minor_formatter().set_scientific(False)
@@ -180,7 +181,7 @@ print(np.array(wtau) / np.array(wtau_AMM))
 plt.plot(Trange, tbc_AMM, linestyle = ':', color = 'xkcd:darkish blue', label = 'Acoustic mismatch only')
 plt.xlabel(r'T (K)', fontsize=16)
 plt.ylabel(r'$R_K$  (10$^{-9}$ m$^2$K/W)', fontsize=16)
-
+plt.ylim([0,6])
 ax = plt.gca()
 #ax.set_yscale('log')
 #ax.yaxis.set_minor_formatter(mticker.ScalarFormatter())

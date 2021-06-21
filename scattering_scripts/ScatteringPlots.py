@@ -56,15 +56,14 @@ def convergence_tau_plot(gb : AS, Gamma, n_angle, T, save = False):
         directional = True
     for n_angle in n_angle_list:
         tau_nlist.append(TT.tau_spectral(Gamma, gb, gb.k_max / 100, n_angle, T, directional = directional)) 
-        print(tau_nlist)
     plt.figure()
     plt.xlabel('n', fontsize=16)
     plt.ylabel(r'$\tau(k) \; \mathrm{(ns)}$', fontsize=16)
     plt.plot(n_angle_list, tau_nlist)
     plt.show(block=False)
-    if save == True:
-        np.save(str(gb.geom) + str(gb.theta) + 'tau_conv.npy', np.array([n_angle_list, tau_nlist]))
-        return (tau_nlist)
+#    if save == True:
+#        np.save(str(gb.geom) + str(gb.theta) + 'tau_conv.npy', np.array([n_angle_list, tau_nlist]))
+    return (tau_nlist)
 
     
 

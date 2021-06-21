@@ -14,6 +14,7 @@ Constants
 '''
 hbar = 6.6260696e-34 / (2 * math.pi)
 kB = 1.38064852e-23
+Na = 6.022e23
 
 
 
@@ -299,4 +300,11 @@ class ArrayScattering:
         k = ArrayScattering.k_mag(k_vector)
         gamma = (self.n_1D / (hbar ** 2 * self.vg_kmag(k))) * V_twiddle_R(self, k_vector)
         return gamma
-    
+
+
+    def Gamma_phph(self, k_vector, gruneisen = 1, T = 300):
+        kmag = k_mag(k_vector)
+        vg = self.vg_kmag(kmag)
+        gamma = (2 / (6 * math.pi**2)**(1/3)) * ((kB * self.V**(1/3) * gruneisen**2 *\
+                      self.omega_kmag(kmag)**2 *  T) / ((self.avgM / Na) * vg**3))
+        return gamma

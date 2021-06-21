@@ -102,7 +102,7 @@ for tbc, ttbc in zip([tbc5, tbc1], [ttbc5, ttbc1]):
     plt.plot([100,150,200,250,300], tbc, ':', color = colors[i])
     plt.plot([100,150,200,250,300], ttbc, color = colors[i])
     i = i+1
-
+plt.ylim(0,0.3)
 plt.ylabel(r'$R_K$  (10$^{-9}$ m$^2$K/W)')
 plt.xlabel('T (K)') 
 plt.savefig('tilt_twist_tbc.pdf', bbox_inches = 'tight')   
@@ -155,13 +155,14 @@ mpl.rcParams['font.size'] = '12'
 
 plt.xlabel('$\omega / \omega_{\mathrm{max}}$')
 plt.ylabel(r'$\tau \; \mathrm{(ns)}$')
+plt.ylim(0,3.0)
 
 ax.text(0.13, 0.14, r'$\theta$ = 5$^{\circ}$\\ D = 3.9 nm', verticalalignment = 'center', horizontalalignment = 'center', transform = ax.transAxes, color = 'xkcd:dark cyan', fontsize = 12, weight = 'bold')
-ax.text(0.32, 0.77, r'$\theta$ = 1$^{\circ}$\\ D = 19.6 nm', verticalalignment = 'center', horizontalalignment = 'center', transform = ax.transAxes, color = 'xkcd:grass', fontsize = 12, weight = 'bold')
+ax.text(0.32, 0.77, r'$\theta$ = 1$^{\circ}$\\ D = 19.6 nm', verticalalignment = 'center', horizontalalignment = 'center', transform = ax.transAxes, color = 'xkcd:dark grass green', fontsize = 12, weight = 'bold')
 
 plt.legend()
 
-plt.savefig('tilt_twist_comp.pdf', bbox_inches = 'tight')
+plt.savefig('tilt_twist_comp2.pdf', bbox_inches = 'tight')
     
 '''
 Log-log Plot
@@ -174,4 +175,8 @@ for t in ['5', '1']:
     plt.loglog(twist_dict[t][0] / (twist.vs * twist.k_max), twist_dict[t][1],\
             color = colors[i], label = labels[t][0] + r'; ' + labels[t][1] + ' nm')
     i = i+1
+    
+kL_tilt = transport5['kappa']
+
+kL_twist = ttransport5['kappa']
 

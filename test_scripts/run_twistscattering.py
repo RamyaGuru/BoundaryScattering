@@ -15,11 +15,13 @@ import TwistScattering as TS
 import ThermalTransport as TT
 import ScatteringPlots as SPlt
 import numpy as np
+import time
 
 input_dict = {'avg_vs': 6084,
              'atmV': [2E-29],
              'N': 2,
              'bulkmod' : 97.83,
+             'shearmod' : 60,
              'nu' : 0.29,
              'gruneisen' : 1,
         }
@@ -40,6 +42,7 @@ d_GS = 350E-09
 twist = TS.initialize(input_dict, cmat, density, theta, geom, ax = ax, d_GS = d_GS)
 
 #SPlt.convergence_tau_plot(twist, TS.Gamma_rot, 110, T = 300)
-
+start_time = time.time()
 spectral = TT.calculate_spectral_props(twist, TS.Gamma_rot, prop_list = ['tau'],\
-                                        n_angle = 10, n_k = 5, T = 300, save = True)
+                                        n_angle = 100, n_k = 5, T = 300, save = True)
+print("--- %s seconds ---" % (time.time() - start_time))

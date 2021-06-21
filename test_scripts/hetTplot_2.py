@@ -99,10 +99,10 @@ density2 = 5323
 geom = 'heterointerface'
 
 het1 = HS.initialize(input_dict1, cmat = [cmat1, cmat2], density = [density1, density2],\
-                     geom = geom)
+                     geom = geom, bvK = True)
 
 het2 = HS.initialize(input_dict2, cmat = [cmat1, cmat2], density = [density1, density2],\
-                     geom = geom)
+                     geom = geom, bvK = True)
 
 
 
@@ -166,7 +166,7 @@ for T in Trange:
 
 print(np.array(wtau) / np.array(wtau_AMM))
 
-plt.plot(Trange, tbc_AMM, linestyle = ':', color = 'xkcd:darkish blue', label = 'Acoustic mismatch only')
+#plt.plot(Trange, tbc_AMM, linestyle = ':', color = 'xkcd:darkish blue', label = 'Acoustic mismatch only')
 plt.xlabel(r'T (K)', fontsize=16)
 plt.ylabel(r'$R_K$  (10$^{-9}$ m$^2$K/W)', fontsize=16)
 
@@ -177,7 +177,8 @@ ax = plt.gca()
 #ax.yaxis.get_minor_formatter().set_useOffset(False)
 ax.yaxis.set_major_formatter(mticker.FormatStrFormatter('%.1f'))
 ax.xaxis.set_major_formatter(mticker.FormatStrFormatter('%.0f'))
-plt.savefig('hetint_tbc_bvK.pdf', bbox_inches = 'tight')
+#ax.set_ylim(0,6)
+plt.savefig('hetint_tbc.pdf', bbox_inches = 'tight')
 
 '''
 Plot the group velocity

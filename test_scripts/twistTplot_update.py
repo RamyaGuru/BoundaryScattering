@@ -34,7 +34,7 @@ mpl.rcParams['axes.formatter.useoffset'] = False
 mpl.rcParams['font.weight'] = 'bold'
 mpl.rcParams['font.size'] = '16'
 mpl.rcParams['text.usetex'] = True
-plt.rcParams['legend.title_fontsize'] = '14'
+plt.rcParams['legend.title_fontsize'] = '11'
 
 mpl.rcParams['mathtext.fontset'] = 'custom'
 
@@ -194,8 +194,23 @@ fig.savefig('rk_T_pred_exp_MD.pdf', bbox_inches = 'tight')
 
 #ax1.ticklabel_format(style="plain")
 
+'''
+Just the modelled data in one plot
+'''
 
+plt.rcParams["figure.figsize"] = [5, 3]
+plt.figure()
+labels = [  r'11.42$^{\circ}$', r'6.9$^{\circ}$', r'3.4$^{\circ}$', r'1$^{\circ}$']
 
+i = 0
+for tbc in [tbc11, tbc7, tbc3, tbc1]:
+    plt.plot([100,150,200,250,300], tbc[:-1], '-o', color = colors[i], label = labels[i])
+    i = i+1
+plt.locator_params(axis="y", nbins=4)
+plt.ylabel(r'$R_K$  (10$^{-9}$ m$^2$K/W)')
+plt.ylim([0, 0.4])
+plt.xlabel(r'T (K)')
+plt.savefig('Rk_twist_model_only.pdf', bbox_inches = 'tight')
 
 #fig.savefig('rk_T_pred_exp_MD_bvK.pdf', bbox_inches = 'tight')
 
@@ -304,6 +319,7 @@ def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=-1):
          cmap(np.linspace(minval, maxval, n)))
     return new_cmap
 
+
 trunc = truncate_colormap(plt.get_cmap("viridis_r"), 0, 0.6875)
 ctNorm  = mcolors.Normalize(vmin=1, vmax=11)
 scaMap_trunc = cmx.ScalarMappable(norm=ctNorm, cmap=trunc) 
@@ -343,6 +359,17 @@ plt.ylabel(r'Interfacial Energy (J/m$^2)$')
 ax.text(0.91, 0.14, r'$\mathrm{\theta}$', verticalalignment = 'center', horizontalalignment = 'center', transform = ax.transAxes, color = 'xkcd:black', fontsize = 20, weight = 'bold')
 #plt.savefig('TBR_energy.pdf', bbox_inches = 'tight')
 
+'''
+Add a plot of just the Read Shockley Model
+'''
+RS_energy = []
+for t in range(1, 91, 5):
+    as_obj = AS(**input_dict, geom = 'tilt', theta = t, ax = 1, d_GS = 350E-9)    
+    RS_energy.append(AS.gb_energy(as_obj))
+
+plt.figure()
+plt.plot(range(1, 91, 5), RS_energy)
+
 
 '''
 Try Double y-axis plot
@@ -356,6 +383,7 @@ ax1.set_ylabel('Interfacial Energy (J/m$^2$)')
 ax1.plot(theta, Tot_energy, color = color)
 #ax1.plot(angles, Tot_energy2, color = color, linestyle = ':')
 ax1.tick_params(axis='y', labelcolor=color)
+ax1.set_ylim(0, 0.9)
 
 ax2 = ax1.twinx()
 
@@ -364,7 +392,7 @@ ax2.set_xlabel(r'Twist Angle $\theta$ (degrees)')
 ax2.set_ylabel(r'$R_K$ (m$^2$K/GW)', labelpad = 7)
 ax2.scatter(theta, [tbc for tbc in tbc_list], color = color, s = 40)
 ax2.tick_params(axis='y', labelcolor=color)
-
+ax2.set_ylim(0, 0.32)
 fig.savefig('TBR_energy_bvK.pdf', bbox_inches = 'tight')
 
 '''

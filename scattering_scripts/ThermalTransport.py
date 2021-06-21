@@ -89,6 +89,7 @@ def kL_spectral(Gamma, gb : AS, k, n_angle, T):
 # "spectral heat capacity. There is no factors of group and phase velocity because it is in terms of k rather than omega.
     #print(Cv(k, T, omega_k))
     kL = (1/3) * Cv(k,T, gb.omega_kmag(k))*vg**2*tau #because of 1/3.. can't I get rid of the kx/k term..? shouldn;t be there???
+    print(kL)
     return kL
     
 
