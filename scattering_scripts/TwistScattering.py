@@ -28,6 +28,7 @@ from math import asin, acos, pi, sin, cos, tan, atan
 import helper
 from AMMTransport import AMMTransport
 import time
+import matplotlib.pyplot as plt
 
 np.seterr(divide='raise', invalid="raise")
 
@@ -188,7 +189,8 @@ def  Gamma_GBS_phph_core(twist, k_vector, kprime_yvectors, kprime_zvectors, grun
 
 def Gamma_GBS_core_only(twist, k_vector, kprime_yvectors, kprime_zvectors):
     tot = [twist.GammaArray(k_vector, kprime_yvectors, V_core_n, twist.ax['n']),\
-          twist.GammaArray(k_vector, kprime_zvectors, V_core_m, twist.ax['m'])]
+          twist.GammaArray(k_vector, kprime_zvectors, V_core_m, twist.ax['m']),\
+          twist.GammaArray_rot(k_vector, V_tilde_sq_R)]
     return sum(tot)   
 
 def Gamma_GBS_rot_only(twist, k_vector, kprime_yvectors, kprime_zvectors):
@@ -206,9 +208,11 @@ def Gamma_rot_only(twist, k_vector):
 def Gamma_phph_only(twist, k_vector, gruneisen = 1, T = 300):
     return (twist.GammaArray_rot(k_vector, V_tilde_sq_R) + twist.Gamma_phph(k_vector, gruneisen, T)) * 1E-9
 
+def Gamma_core_only(twist, k_vector):
+    return Gamma_GBS_core_only(twist, k_vector, twist.kprimes_y(k_vector), twist.kprimes_z(k_vector)) * 1E-9
+
 def Gamma_core(twist, k_vector):
     return Gamma_GBS_core(twist, k_vector, twist.kprimes_y(k_vector), twist.kprimes_z(k_vector)) * 1E-9 
-
 
 def Gamma_phph(twist, k_vector):
     return Gamma_GBS_phph(twist, k_vector,  twist.kprimes_y(k_vector), twist.kprimes_z(k_vector)) * 1E-9
@@ -234,12 +238,12 @@ if __name__ == "__main__":
     theta = 12
     atmM = 28.085
     twist = initialize_phph(input_dict, atmM, cmat, density, theta, geom = 'twist', ax = ax, d_GS = d_GS)
-    Gamma_list = calculate_Gammas(twist, 20, Gamma_core)
+    Gamma_list = calculate_Gammas(twist, 20, Gamma_core_only)
     SPlt.diffraction_plot(twist, Gamma_list[0], Gamma_list[1])
 #    start_time = time.time()
 #    SPlt.convergence_tau_plot(twist, Gamma_rot, 150, T = 300)
 #    print("--- %s seconds ---" % (time.time() - start_time))
-    spectral = TT.calculate_spectral_props(twist, Gamma_core, prop_list = ['tau'],\
+    spectral = TT.calculate_spectral_props(twist, Gamma_core_only, prop_list = ['tau'],\
                                         n_angle = 20, n_k = 10, T = 300) #n_angle = 200, n_k = 100
     SPlt.spectral_plots(twist, spectral, prop_list = ['tau'], save = True)
 #    temp_dependence = TT.calculate_temperature_dependence(twist, Gamma, temp_list = [100, 800])
