@@ -55,6 +55,8 @@ twist11 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScatteri
 twist12 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020_update_bvK/twist12spectral_update2tau.npy')
 twist15 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/fall2020_2/twist15spectral_updatetau.npy')
 
+
+
 '''
 Calculate transport coefficients
 '''
