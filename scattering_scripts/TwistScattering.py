@@ -126,7 +126,7 @@ def V_twiddle_sq_n(twist, k_vector, kprime_vector):
 def V_core_n(twist, k_vector, kprime_vector):
     #9 comes from (3M / M)**2
     k = AS.k_mag(k_vector)
-    return ((pi / 2) * 3 * helper.hbar * k *  twist.V**(2/3))**2
+    return ((pi / 2) * 3 * helper.hbar * k *  twist.V**(2/3))**2 * twist.vs
     
 
 '''
@@ -147,7 +147,7 @@ def V_twiddle_sq_m(twist, k_vector, kprime_vector):
 
 def V_core_m(twist, k_vector, kprime_vector):
     k = AS.k_mag(k_vector)
-    return ((pi / 2) * 3 * helper.hbar * k *  twist.V**(2/3))**2
+    return ((pi / 2) * 3 * helper.hbar * k *  twist.V**(2/3))**2 * twist.vs
 
 '''
 STGB scattering rates
@@ -192,6 +192,7 @@ def Gamma_GBS_core_only(twist, k_vector, kprime_yvectors, kprime_zvectors):
           twist.GammaArray(k_vector, kprime_zvectors, V_core_m, twist.ax['m']),\
           twist.GammaArray_rot(k_vector, V_tilde_sq_R)]
     return sum(tot)   
+
 
 def Gamma_GBS_rot_only(twist, k_vector, kprime_yvectors, kprime_zvectors):
     return twist.GammaArray_rot(k_vector, V_tilde_sq_R) #twist.GammaArray_rot(k_vector, V_R_ch_snell)
@@ -245,7 +246,16 @@ if __name__ == "__main__":
 #    print("--- %s seconds ---" % (time.time() - start_time))
     spectral = TT.calculate_spectral_props(twist, Gamma_core_only, prop_list = ['tau'],\
                                         n_angle = 20, n_k = 10, T = 300) #n_angle = 200, n_k = 100
-    SPlt.spectral_plots(twist, spectral, prop_list = ['tau'], save = True)
+    plt.figure()
+    plt.plot(np.array(spectral['omega']) / twist.omegaD, spectral['tau'])
+    
+    plt.figure()
+    plt.loglog(np.array(spectral['omega']) / twist.omegaD, spectral['tau'])
+    tau = np.array(spectral['tau'])
+    omega = np.array(spectral['omega'])
+    plt.loglog(omega[7:9] / twist.omegaD, tau[7]*(omega[7:9]/omega[7])**(-2.8) * 0.9, color = 'xkcd:black')
+    plt.loglog(omega[4:7] / twist.omegaD, tau[4]*(omega[4:7]/omega[4])**(-2) * 0.9, color = 'xkcd:black')
+#    SPlt.spectral_plots(twist, spectral, prop_list = ['tau'], save = True)
 #    temp_dependence = TT.calculate_temperature_dependence(twist, Gamma, temp_list = [100, 800])
 
 

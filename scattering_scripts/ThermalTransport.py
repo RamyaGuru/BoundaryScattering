@@ -159,7 +159,7 @@ def tbc_T_old(Gamma, gb : AS, n_k, n_angle, T):
 def calculate_spectral_props(gb : AS, Gamma, prop_list = ['tau', 'transmissivity', 'TBC', 'kappa'],\
                              function = {'tau' : tau_spectral, 'transmissivity' : transmissivity_spectral,
                 'TBC' : tbc_spectral, 'kappa' : kL_spectral},
-                             n_angle = 100, n_k = 100, T = 300, save = False):
+                             n_angle = 100, n_k = 100, T = 300, save = False, tag = ''):
     '''
     Calculate spectral properties
     prop_list : spectral properties which should be calculated
@@ -197,7 +197,7 @@ def calculate_spectral_props(gb : AS, Gamma, prop_list = ['tau', 'transmissivity
             i = i+1
     if save:
         prop = 'tau'
-        np.save(str(gb.geom) + str(gb.theta) + 'spectral_update' + prop + '.npy', np.array([spectral['omega'], spectral[prop]]))
+        np.save(str(gb.geom) + str(gb.theta) + tag + prop + '.npy', np.array([spectral['omega'], spectral[prop]]))
     return spectral
 
 def calculate_temperature_dependence(gb : AS, Gamma, temp_list, prop_list = ['TBC', 'kappa'],\
