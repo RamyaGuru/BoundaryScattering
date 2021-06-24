@@ -239,12 +239,12 @@ if __name__ == "__main__":
     theta = 12
     atmM = 28.085
     twist = initialize_phph(input_dict, atmM, cmat, density, theta, geom = 'twist', ax = ax, d_GS = d_GS)
-    Gamma_list = calculate_Gammas(twist, 20, Gamma_core_only)
+    Gamma_list = calculate_Gammas(twist, 20, Gamma_core)
     SPlt.diffraction_plot(twist, Gamma_list[0], Gamma_list[1])
 #    start_time = time.time()
 #    SPlt.convergence_tau_plot(twist, Gamma_rot, 150, T = 300)
 #    print("--- %s seconds ---" % (time.time() - start_time))
-    spectral = TT.calculate_spectral_props(twist, Gamma_core_only, prop_list = ['tau'],\
+    spectral = TT.calculate_spectral_props(twist, Gamma_core, prop_list = ['tau'],\
                                         n_angle = 20, n_k = 10, T = 300) #n_angle = 200, n_k = 100
     plt.figure()
     plt.plot(np.array(spectral['omega']) / twist.omegaD, spectral['tau'])

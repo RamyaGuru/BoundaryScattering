@@ -87,6 +87,10 @@ def V1_twiddle_sq_S(tilt, k_vector, kprime_vector):
                (tilt.b / (1 - tilt.nu)) * ((q_vector[0] * q_vector[1]**2)\
                / (q_vector[0]**2 + q_vector[1]**2)**2)) ** 2
                
+def V_core(tilt, k_vector, kprime_vector):
+    k = AS.k_mag(k_vector)
+    return ((pi / 2) * 3 * helper.hbar * k *  tilt.V**(2/3))**2 * tilt.vs
+               
 
 def Gamma_GBS(tilt, k_vector, kprime_vectors):
 #    print([tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_Delta, tilt.ax), tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_S, tilt.ax)])
@@ -98,14 +102,32 @@ def Gamma_GBS(tilt, k_vector, kprime_vectors):
 def Gamma_GBS_rot_only(tilt, k_vector, kprime_yvectors, kprime_zvectors):
     return tilt.GammaArray_rot(k_vector, V_tilde_sq_R)
 
+def Gamma_GBS_core(tilt, k_vector, kprime_vectors):
+#    print([tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_Delta, tilt.ax), tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_S, tilt.ax)])
+    return tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_Delta, tilt.ax) \
+          + tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_S, tilt.ax)\
+          + tilt.GammaArray(k_vector, kprime_vectors, V_core, tilt.ax)\
+          + tilt.GammaArray_rot(k_vector, V_tilde_sq_R)
+         
+def Gamma_GBS_core_only(tilt, k_vector, kprime_vectors):
+#    print([tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_Delta, tilt.ax), tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_S, tilt.ax)])
+    return tilt.GammaArray(k_vector, kprime_vectors, V_core, tilt.ax)\
+          + tilt.GammaArray_rot(k_vector, V_tilde_sq_R)
 
 def Gamma(tilt, k_vector):
     return Gamma_GBS(tilt, k_vector, tilt.kprimes_y(k_vector)) * 1E-9 
 
-def Gamma_rot_only(tilt, amm, k_vector):
+def Gamma_rot_only(tilt, k_vector):
     return Gamma_GBS_rot_only(tilt, k_vector, tilt.kprimes_y(k_vector), tilt.kprimes_z(k_vector)) * 1E-9
 
-def calculate_Gammas(tilt, n_k):
+def Gamma_core_only(tilt, k_vector):
+    return Gamma_GBS_core_only(tilt, k_vector, tilt.kprimes_y(k_vector)) * 1E-9 
+
+def Gamma_core(tilt, k_vector):
+    return Gamma_GBS_core(tilt, k_vector, tilt.kprimes_y(k_vector)) * 1E-9 
+
+
+def calculate_Gammas(tilt, n_k, gamma_fxn = Gamma):
     dk = tilt.k_max / n_k
     k_mags = np.arange(dk, tilt.k_max, dk)
     k_norm = k_mags / tilt.k_max
@@ -118,14 +140,15 @@ def calculate_Gammas(tilt, n_k):
     return [k_norm, Gamma_GBS_list] 
 
 if __name__ == "__main__":
+    theta = 12
     tilt = initialize(input_dict, cmat, density, theta, geom = 'tilt', ax = 1, d_GS = 350e-9)
-    Gamma_list = calculate_Gammas(tilt, 200)
+    Gamma_list = calculate_Gammas(tilt, 200, Gamma_core)
     SPlt.diffraction_plot(tilt, Gamma_list[0], Gamma_list[1])
 #    SPlt.convergence_tau_plot(tilt, Gamma, 110, T = 300, save = True)
-#    spectral = TT.calculate_spectral_props(tilt, Gamma_rot_only, prop_list = ['tau'],\
-#                                         n_angle = 200, n_k = 50, T = 300)
+    spectral = TT.calculate_spectral_props(tilt, Gamma_core, prop_list = ['tau'],\
+                                         n_angle = 20, n_k = 10, T = 300)
 #    with open('spectral.json') as json_file:
 #        spectral = json.load(json_file)
-#    SPlt.spectral_plots(tilt, spectral, prop_list = ['tau'], save = True)
+    SPlt.spectral_plots(tilt, spectral, prop_list = ['tau'])
 
                
