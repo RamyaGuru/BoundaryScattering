@@ -95,7 +95,8 @@ plt.plot(twist7_core_only[0] / (twist.omegaD), twist7_core_only[1])
 
 plt.figure()
 plt.loglog(twist7_core_only[0] / (twist.omegaD * (pi / 2)), twist7_core_only[1])
-plt.loglog(twist7_core_only[0][80:] / (twist.omegaD  * (pi / 2)), twist7_core_only[1][80]*(twist7_core_only[0][80:]/twist7_core_only[0][80])**(-2.5), color = 'xkcd:black')
+plt.loglog(twist7_core_only[0][30:40] / (twist.omegaD  * (pi / 2)), twist7_core_only[1][30]*(twist7_core_only[0][30:40]/twist7_core_only[0][30])**(-1) * 0.9, color = 'xkcd:black') 
+plt.loglog(twist7_core_only[0][80:90] / (twist.omegaD  * (pi / 2)), twist7_core_only[1][80]*(twist7_core_only[0][80:90]/twist7_core_only[0][80])**(-2.7) * 0.8, color = 'xkcd:black')
 
 
 twist7_core_strain = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/twist7.0core_straintau.npy')
@@ -107,3 +108,15 @@ plt.figure()
 plt.loglog(twist7_core_strain[0] / (twist.omegaD * (pi / 2)), twist7_core_strain[1])
 plt.loglog(twist7_core_strain[0][50:] / (twist.omegaD  * (pi / 2)), twist7_core_strain[1][50]*(twist7_core_strain[0][50:]/twist7_core_strain[0][50])**(-1.1), color = 'xkcd:black')
 plt.loglog(twist7_core_strain[0][9:14] / (twist.omegaD  * (pi / 2)), twist7_core_strain[1][9]*(twist7_core_strain[0][9:14]/twist7_core_strain[0][9])**(-3.1), color = 'xkcd:black')
+
+'''
+Core without any rotation or strain
+'''
+twist7_core_no = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/twist7.0core_no_rottau.npy')
+
+plt.figure()
+plt.plot(twist7_core_no[0] / (twist.omegaD * (pi / 2)), twist7_core_no[1])
+
+plt.figure()
+plt.loglog(twist7_core_no[0] / (twist.omegaD * (pi / 2)), twist7_core_no[1])
+

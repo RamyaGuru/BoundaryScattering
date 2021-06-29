@@ -113,6 +113,11 @@ def Gamma_GBS_core_only(tilt, k_vector, kprime_vectors):
 #    print([tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_Delta, tilt.ax), tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_S, tilt.ax)])
     return tilt.GammaArray(k_vector, kprime_vectors, V_core, tilt.ax)\
           + tilt.GammaArray_rot(k_vector, V_tilde_sq_R)
+          
+          
+def Gamma_GBS_core_no_rot(tilt, k_vector, kprime_vectors):
+#    print([tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_Delta, tilt.ax), tilt.GammaArray(k_vector, kprime_vectors, V1_twiddle_sq_S, tilt.ax)])
+    return tilt.GammaArray(k_vector, kprime_vectors, V_core, tilt.ax)
 
 def Gamma(tilt, k_vector):
     return Gamma_GBS(tilt, k_vector, tilt.kprimes_y(k_vector)) * 1E-9 
@@ -125,6 +130,10 @@ def Gamma_core_only(tilt, k_vector):
 
 def Gamma_core(tilt, k_vector):
     return Gamma_GBS_core(tilt, k_vector, tilt.kprimes_y(k_vector)) * 1E-9 
+
+def Gamma_core_no_rot(tilt, k_vector):
+    return Gamma_GBS_core_no_rot(tilt, k_vector,  tilt.kprimes_y(k_vector)) * 1E-9
+
 
 
 def calculate_Gammas(tilt, n_k, gamma_fxn = Gamma):
@@ -142,11 +151,11 @@ def calculate_Gammas(tilt, n_k, gamma_fxn = Gamma):
 if __name__ == "__main__":
     theta = 12
     tilt = initialize(input_dict, cmat, density, theta, geom = 'tilt', ax = 1, d_GS = 350e-9)
-    Gamma_list = calculate_Gammas(tilt, 200, Gamma_core)
+    Gamma_list = calculate_Gammas(tilt, 200, Gamma_core_no_rot)
     SPlt.diffraction_plot(tilt, Gamma_list[0], Gamma_list[1])
 #    SPlt.convergence_tau_plot(tilt, Gamma, 110, T = 300, save = True)
-    spectral = TT.calculate_spectral_props(tilt, Gamma_core, prop_list = ['tau'],\
-                                         n_angle = 20, n_k = 10, T = 300)
+    spectral = TT.calculate_spectral_props(tilt, Gamma_core_no_rot, prop_list = ['tau'],\
+                                         n_angle = 20, n_k = 10, T = 300, tau0 =  3.5)
 #    with open('spectral.json') as json_file:
 #        spectral = json.load(json_file)
     SPlt.spectral_plots(tilt, spectral, prop_list = ['tau'])
