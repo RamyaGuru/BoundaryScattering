@@ -30,27 +30,42 @@ twist3 = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScatterin
 twist3_phph = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/twist3.4spectral_phphtau.npy')
 twist3_phph_core = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/twist3.4spectral_phph_coretau.npy')
 
-
-
-plt.plot(twist3[0] / twist.omegaD, twist3[1], label = 'strain only')
-plt.plot(twist3_phph[0] / (twist.omegaD * (pi / 2)), twist3_phph[1], label = 'strain + phph')
-plt.plot(twist3_phph_core[0] / (twist.omegaD * (pi / 2)), twist3_phph_core[1], label = 'strain + phph + core')
-plt.legend()
-
-
-'''
-Loglog plots
-'''
+twist3_core_only = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/twist3.0core_onlytau.npy')
+twist3_core_strain = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/twist3.0core_straintau.npy')
 
 plt.figure()
-#plt.loglog(twist3[0] / twist.omegaD, twist3[1], label = 'strain only')
-plt.loglog(twist3_phph[0] / (twist.omegaD * (pi / 2)), twist3_phph[1], label = 'strain + phph')
-plt.loglog(twist3_phph[0][4:7] / (twist.omegaD * (pi / 2)), twist3_phph[1][4]*(twist3_phph[0][4:7]/twist3_phph[0][4])**(-4) * 0.75, color = 'xkcd:black')
-plt.loglog(twist3_phph[0][50:] / (twist.omegaD * (pi / 2)), twist3_phph[1][50]*(twist3_phph[0][50:]/twist3_phph[0][50])**(-1.1) * 0.75, color = 'xkcd:black')
-plt.loglog(twist3_phph_core[0] / (twist.omegaD * (pi / 2)), twist3_phph_core[1], label = 'strain + phph + core')
-plt.loglog(twist3_phph_core[0][50:] / (twist.omegaD  * (pi / 2)), twist3_phph_core[1][50]*(twist3_phph_core[0][50:]/twist3_phph_core[0][50])**(-3) * 0.75, color = 'xkcd:black')
-plt.loglog(twist3_phph_core[0][3:7] / (twist.omegaD  * (pi / 2)), twist3_phph_core[1][3]*(twist3_phph_core[0][3:7]/twist3_phph_core[0][3])**(-9) * 0.75, color = 'xkcd:black')
-plt.legend()
+plt.plot(twist3_core_only[0] / twist.omegaD, twist3_core_only[1])
+
+plt.figure()
+plt.loglog(twist3_core_only[0] / twist.omegaD, twist3_core_only[1])
+plt.loglog()
+
+
+plt.figure()
+plt.plot(twist3_core_strain[0] / twist.omegaD, twist3_core_strain[1])
+plt.loglog(twist3_core_strain[0][4:7] / (twist.omegaD * (pi / 2)), twist3_core_strain[1][4]*(twist3_core_strain[0][4:7]/twist3_core_strain[0][4])**(-4) * 0.85, color = 'xkcd:black')
+plt.loglog(twist3_core_strain[0][50:] / (twist.omegaD * (pi / 2)), twist3_core_strain[1][50]*(twist3_core_strain[0][50:]/twist3_core_strain[0][50])**(-1.1) * 0.85, color = 'xkcd:black')
+
+
+#plt.plot(twist3[0] / twist.omegaD, twist3[1], label = 'strain only')
+#plt.plot(twist3_phph[0] / (twist.omegaD * (pi / 2)), twist3_phph[1], label = 'strain + phph')
+#plt.plot(twist3_phph_core[0] / (twist.omegaD * (pi / 2)), twist3_phph_core[1], label = 'strain + phph + core')
+#plt.legend()
+#
+#
+#'''
+#Loglog plots
+#'''
+#
+#plt.figure()
+##plt.loglog(twist3[0] / twist.omegaD, twist3[1], label = 'strain only')
+#plt.loglog(twist3_phph[0] / (twist.omegaD * (pi / 2)), twist3_phph[1], label = 'strain + phph')
+#plt.loglog(twist3_phph[0][4:7] / (twist.omegaD * (pi / 2)), twist3_phph[1][4]*(twist3_phph[0][4:7]/twist3_phph[0][4])**(-4) * 0.75, color = 'xkcd:black')
+#plt.loglog(twist3_phph[0][50:] / (twist.omegaD * (pi / 2)), twist3_phph[1][50]*(twist3_phph[0][50:]/twist3_phph[0][50])**(-1.1) * 0.75, color = 'xkcd:black')
+#plt.loglog(twist3_phph_core[0] / (twist.omegaD * (pi / 2)), twist3_phph_core[1], label = 'strain + phph + core')
+#plt.loglog(twist3_phph_core[0][50:] / (twist.omegaD  * (pi / 2)), twist3_phph_core[1][50]*(twist3_phph_core[0][50:]/twist3_phph_core[0][50])**(-3) * 0.75, color = 'xkcd:black')
+#plt.loglog(twist3_phph_core[0][3:7] / (twist.omegaD  * (pi / 2)), twist3_phph_core[1][3]*(twist3_phph_core[0][3:7]/twist3_phph_core[0][3])**(-9) * 0.75, color = 'xkcd:black')
+#plt.legend()
 
 
 twist7_phph_core = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/twist7.0spectral_phph_coretau.npy')
@@ -76,8 +91,19 @@ plt.loglog(twist7_phph_core[0][0:8] / (twist.omegaD  * (pi / 2)), twist7_phph_co
 twist7_core_only = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/twist7.0core_onlytau.npy')
 
 plt.figure()
-plt.plot(twist7_core_only[0] / (twist.omegaD), twist7_core_only[1])  #not doing much...
+plt.plot(twist7_core_only[0] / (twist.omegaD), twist7_core_only[1]) 
 
 plt.figure()
 plt.loglog(twist7_core_only[0] / (twist.omegaD * (pi / 2)), twist7_core_only[1])
-#plt.loglog(twist7_core_only[0][80:] / (twist.omegaD  * (pi / 2)), twist7_core_only[1][80]*(twist7_core_only[0][80:]/twist7_core_only[0][80])**(-0.01), color = 'xkcd:black')
+plt.loglog(twist7_core_only[0][80:] / (twist.omegaD  * (pi / 2)), twist7_core_only[1][80]*(twist7_core_only[0][80:]/twist7_core_only[0][80])**(-2.5), color = 'xkcd:black')
+
+
+twist7_core_strain = np.load('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/twist7.0core_straintau.npy')
+
+plt.figure()
+plt.plot(twist7_core_strain[0] / (twist.omegaD), twist7_core_strain[1]) 
+
+plt.figure()
+plt.loglog(twist7_core_strain[0] / (twist.omegaD * (pi / 2)), twist7_core_strain[1])
+plt.loglog(twist7_core_strain[0][50:] / (twist.omegaD  * (pi / 2)), twist7_core_strain[1][50]*(twist7_core_strain[0][50:]/twist7_core_strain[0][50])**(-1.1), color = 'xkcd:black')
+plt.loglog(twist7_core_strain[0][9:14] / (twist.omegaD  * (pi / 2)), twist7_core_strain[1][9]*(twist7_core_strain[0][9:14]/twist7_core_strain[0][9])**(-3.1), color = 'xkcd:black')

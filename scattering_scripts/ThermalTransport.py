@@ -26,7 +26,7 @@ PROPERTIES: options for calculated properties including tranmissivity, thermal
 boundary conductance, and thermal conductivity
 ''' 
 #      
-def tau_spectral(Gamma, gb : AS, k, n_angle, T, directional = False):
+def tau_spectral(Gamma, gb : AS, k, n_angle, T, directional = False, tau0 = None):
     '''
     Calculates a spectral tau which can be applied to the
     single mode, isotropic Callaway model. This relaxation 
@@ -49,8 +49,9 @@ def tau_spectral(Gamma, gb : AS, k, n_angle, T, directional = False):
                             k * np.sin(theta - (d_angle / 2)) * np.cos(phi - (d_angle / 2)), \
                             k * np.sin(theta - (d_angle / 2)) * np.sin(phi - (d_angle / 2))]
             running_integrand = running_integrand + \
-            ((2 * np.sin(theta - (d_angle / 2)) * np.cos(theta - (d_angle / 2))**2) * Gamma(gb, k_vector_int)) * d_angle**2 # Integrate over scattering rate: See https://hackingmaterials.lbl.gov/amset/scattering/
-            tau_directional.append([theta, phi, Gamma(gb, k_vector_int)**(-1)])
+                ((2 * np.sin(theta - (d_angle / 2)) * np.cos(theta - (d_angle / 2))**2) * Gamma(gb, k_vector_int)) * d_angle**2 # Integrate over scattering rate: See https://hackingmaterials.lbl.gov/amset/scattering/
+            if directional:
+                tau_directional.append([theta, phi, Gamma(gb, k_vector_int)**(-1)])
 #            i = i+1
 #            if i == 10:
 #                print(Gamma(k_vector_int))
@@ -58,7 +59,11 @@ def tau_spectral(Gamma, gb : AS, k, n_angle, T, directional = False):
     if directional:
         with open('/Users/ramyagurunathan/Documents/PhDProjects/BoundaryScattering/datafiles/' + str(gb.geom) + str(gb.theta) + 'oldtau_directional_2_hf.pkl', 'wb') as file:
             pickle.dump(tau_directional, file)
-    return (8 * (3 / (4 * math.pi)) * running_integrand)**(-1) # need to think about this more.. the cos**2 now probably has to be inverted..
+    try:
+        output = (8 * (3 / (4 * math.pi)) * running_integrand)**(-1)
+    except:
+        output = tau0
+    return output # need to think about this more.. the cos**2 now probably has to be inverted..
     
 
 def transmissivity_spectral(Gamma, gb : AS, k, n_angle, T):        
@@ -159,7 +164,7 @@ def tbc_T_old(Gamma, gb : AS, n_k, n_angle, T):
 def calculate_spectral_props(gb : AS, Gamma, prop_list = ['tau', 'transmissivity', 'TBC', 'kappa'],\
                              function = {'tau' : tau_spectral, 'transmissivity' : transmissivity_spectral,
                 'TBC' : tbc_spectral, 'kappa' : kL_spectral},
-                             n_angle = 100, n_k = 100, T = 300, save = False, tag = ''):
+                             n_angle = 100, n_k = 100, T = 300, save = False, tau0 = None, tag = ''):
     '''
     Calculate spectral properties
     prop_list : spectral properties which should be calculated
@@ -183,7 +188,7 @@ def calculate_spectral_props(gb : AS, Gamma, prop_list = ['tau', 'transmissivity
         spectral['kappa'] = []
     dk = gb.k_max / n_k
     k_mags = np.arange(dk, gb.k_max, dk)
-    params = {'Gamma' : Gamma, 'gb' : gb, 'k' : dk, 'n_angle' : n_angle, 'T' : T}
+    params = {'Gamma' : Gamma, 'gb' : gb, 'k' : dk, 'n_angle' : n_angle, 'T' : T, 'tau0' : tau0}
     for k in k_mags: 
         spectral['vg'].append(gb.vg_kmag(k))
         spectral['omega'].append(gb.omega_kmag(k))

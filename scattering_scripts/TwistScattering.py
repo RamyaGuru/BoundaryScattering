@@ -85,12 +85,12 @@ Initialize input dictionary with Materials Project
 
 def initialize(input_dict, cmat, density, theta, geom, ax = 1, d_GS = 350e-9, bvK = True):
     amm = AMMTransport(cmat, density, input_dict['atmV'][0], input_dict['N'])
-    twist = AS(**input_dict, geom = geom, amm = amm, theta = theta, ax = ax, d_GS = d_GS)
+    twist = AS(**input_dict, geom = geom, amm = amm, theta = theta, ax = ax, d_GS = d_GS, bvK = bvK)
     return twist
 
 def initialize_phph(input_dict, avgM, cmat, density, theta, geom, ax = 1, d_GS = 350e-9, bvK = True):
     amm = AMMTransport(cmat, density, input_dict['atmV'][0], input_dict['N'])
-    twist = AS(**input_dict, geom = geom, amm = amm, theta = theta, ax = ax, d_GS = d_GS)
+    twist = AS(**input_dict, geom = geom, amm = amm, theta = theta, ax = ax, d_GS = d_GS, bvK = bvK)
     twist.avgM = avgM
     return twist
 
@@ -193,6 +193,11 @@ def Gamma_GBS_core_only(twist, k_vector, kprime_yvectors, kprime_zvectors):
           twist.GammaArray_rot(k_vector, V_tilde_sq_R)]
     return sum(tot)   
 
+def Gamma_GBS_core_no_rot(twist, k_vector, kprime_yvectors, kprime_zvectors):
+    tot = [twist.GammaArray(k_vector, kprime_yvectors, V_core_n, twist.ax['n']),\
+          twist.GammaArray(k_vector, kprime_zvectors, V_core_m, twist.ax['m'])]
+    return sum(tot)
+
 
 def Gamma_GBS_rot_only(twist, k_vector, kprime_yvectors, kprime_zvectors):
     return twist.GammaArray_rot(k_vector, V_tilde_sq_R) #twist.GammaArray_rot(k_vector, V_R_ch_snell)
@@ -220,6 +225,10 @@ def Gamma_phph(twist, k_vector):
 
 def Gamma_phph_core(twist, k_vector):
     return Gamma_GBS_phph_core(twist, k_vector,  twist.kprimes_y(k_vector), twist.kprimes_z(k_vector)) * 1E-9
+
+
+def Gamma_core_no_rot(twist, k_vector):
+    return Gamma_GBS_core_no_rot(twist, k_vector,  twist.kprimes_y(k_vector), twist.kprimes_z(k_vector)) * 1E-9
     
 
 def calculate_Gammas(twist, n_k, gamma_fxn = Gamma_phph):
@@ -239,13 +248,13 @@ if __name__ == "__main__":
     theta = 12
     atmM = 28.085
     twist = initialize_phph(input_dict, atmM, cmat, density, theta, geom = 'twist', ax = ax, d_GS = d_GS)
-    Gamma_list = calculate_Gammas(twist, 20, Gamma_core)
+    Gamma_list = calculate_Gammas(twist, 20, Gamma_core_no_rot)
     SPlt.diffraction_plot(twist, Gamma_list[0], Gamma_list[1])
 #    start_time = time.time()
 #    SPlt.convergence_tau_plot(twist, Gamma_rot, 150, T = 300)
 #    print("--- %s seconds ---" % (time.time() - start_time))
-    spectral = TT.calculate_spectral_props(twist, Gamma_core, prop_list = ['tau'],\
-                                        n_angle = 20, n_k = 10, T = 300) #n_angle = 200, n_k = 100
+    spectral = TT.calculate_spectral_props(twist, Gamma_core_no_rot, prop_list = ['tau'],\
+                                        n_angle = 20, n_k = 10, T = 300, tau0 = 3.5) #n_angle = 200, n_k = 100
     plt.figure()
     plt.plot(np.array(spectral['omega']) / twist.omegaD, spectral['tau'])
     

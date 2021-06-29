@@ -53,9 +53,9 @@ Initialize input dictionary with Materials Project
 Initialize from input dictionary
 '''
 
-def initialize(input_dict, cmat, density, theta, geom, ax = 1, d_GS = 350e-9):
+def initialize(input_dict, cmat, density, theta, geom, ax = 1, d_GS = 350e-9, bvK = True):
     amm = AMMTransport(cmat, density, input_dict['atmV'][0], input_dict['N'])
-    tilt = AS(**input_dict, geom = geom, amm = amm, theta = theta, ax = ax, d_GS = d_GS)
+    tilt = AS(**input_dict, geom = geom, amm = amm, theta = theta, ax = ax, d_GS = d_GS, bvK = bvK)
     return tilt
 
 
